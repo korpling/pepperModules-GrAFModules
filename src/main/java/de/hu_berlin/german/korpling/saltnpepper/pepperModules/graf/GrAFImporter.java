@@ -37,7 +37,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefin
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.GrAFResourceFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.graf.v01.GrAFResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;

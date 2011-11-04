@@ -49,7 +49,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperManip
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.exceptions.GraphException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltCommonPackage;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.GrAFResourceFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.graf.v01.GrAFResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
