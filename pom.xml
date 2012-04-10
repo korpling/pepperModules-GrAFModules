@@ -3,7 +3,27 @@
   <groupId>de.hu_berlin.german.korpling.saltnpepper.pepperModules</groupId>
   <artifactId>GrAFModules</artifactId>
   <version>1.1.0</version>
-<licenses>
+  
+  <description>This project provides a Pepper importer and an exporter for GrAF data.</description>
+  <url>https://korpling.german.hu-berlin.de/p/projects/peppermodules-grafmodules</url>
+  <issueManagement>
+  	<system>Redmine</system>
+  	<url>https://korpling.german.hu-berlin.de/p/projects/peppermodules-grafmodules/issues</url>
+  </issueManagement>
+  <ciManagement>
+  	<system>Jenkins</system>
+  	<url>https://korpling.german.hu-berlin.de/jenkins/</url>
+  </ciManagement>
+  <inceptionYear>2009</inceptionYear>
+
+  <repositories>
+    <repository>
+      <id>korpling</id>
+      <name>korpling maven repo</name>
+      <url>http://korpling.german.hu-berlin.de/maven2</url>
+    </repository>
+  </repositories>
+  <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
@@ -18,6 +38,14 @@
     <license.file>${basedir}/LICENSE</license.file>
     <notice.file>${basedir}/NOTICE</notice.file>
   </properties>
+  <distributionManagement>
+    <repository>
+      <id>korpling</id>
+      <name>korpling maven repo</name>
+      <url>file:///srv/www/maven2/</url>
+      <!-- <url>scpexe://korpling.german.hu-berlin.de/srv/www/maven2/</url>-->
+    </repository>
+  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>org.apache.felix</groupId>
