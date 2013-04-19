@@ -98,21 +98,6 @@ public class GrafReader {
 		return annoTypes; 
 	}
 	
-	
-//	/** returns a list of absolute paths to all document header files in a
-//	 *  corpus, which each contain meta information about a document. */
-//	public static List<String> getDocumentHeaderPaths(String corpusPath) {
-//		return Utils.recursiveListDir(corpusPath, ".hdr");
-//	}
-	
-//	/** returns a list of absolute paths to all document header files in a
-//	 *  corpus, which each contain meta information about a document. 
-//	 *  @param corpusPath - absolute path to the corpus directory 
-//	 *  @param fileExtension - file extension used by the header files, e.g. ".hdr" or ".anc" */
-//	public static List<String> getDocumentHeaderPaths(String corpusPath, String fileExtension) {
-//		return Utils.recursiveListDir(corpusPath, fileExtension);
-//	}
-	
 
 	/** returns the IDs of all the documents in a corpus, e.g. MASC2-0130 */
 	public static List<String> getDocumentIds(List<String> docHeaderPaths) 
@@ -368,30 +353,4 @@ public class GrafReader {
 		}		
 		return syntaxRootNodes;
 	}
-	
-//	public static void main(String[] args) throws IOException, GrafException, SAXException {
-//		String corpusPath = Utils.getVariableFromYamlFile("corpusPath");
-////		GrafResourceHeader rscHeader = new GrafResourceHeader(corpusPath);
-////		printResourceHeaderInfo(rscHeader);
-//		
-//		List<String> docHeaderPaths = getDocumentHeaderPaths(corpusPath);
-//		
-//		List<String> tokenizedPOSTaggedDocHeaders = GrafToSaltConverter.getTokenizedPOSTaggedDocHeaders(docHeaderPaths);
-//		System.out.println(tokenizedPOSTaggedDocHeaders.size());
-//		for (String docHeader : tokenizedPOSTaggedDocHeaders) {
-//			System.out.println(docHeader);
-//		}
-//	}
-
 }
-
-
-	
-
-//DotRenderer dot = new DotRenderer(outFilePath);
-//dot.render(graph);
-//dot.close();
-
-// print XML representation of graph to System.out
-//GrafRenderer graf = new GrafRenderer(System.out);
-//graf.render(graph);

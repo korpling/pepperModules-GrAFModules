@@ -20,7 +20,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +29,13 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.log.LogService;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IGraph;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafToSaltConverter.ProcessedDocumentSet;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
@@ -74,6 +70,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		this.name= "GrAFImporter";
 		//set list of formats supported by this module
 		this.addSupportedFormat("GrAF", "1.0", null);
+		this.setProperties(new GrAFImporterProperties());
 	}
 	
 	/**
@@ -88,40 +85,20 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	
 	/** returns a list of document header file paths, which belong to documents
 	 *  that are segmented and POS tagged. */
-	public static List<String> getTokenizedPOSTaggedDocHeaders(List<String> documentHeaderPaths) 
+	public List<String> getTokenizedPOSTaggedDocHeaders(List<String> documentHeaderPaths) 
 				  throws FileNotFoundException, GrafException {
-		List<String> desiredAnnotations = Arrays.asList(new String[] {"f.seg", "f.penn"});
-		
 		List<String> desiredDocHeadersPaths = new ArrayList<String>();
 		for (String docHeaderPath : documentHeaderPaths) {
 			GrafDocumentHeader docHeader = new GrafDocumentHeader(docHeaderPath);
 			List<String> annoTypes = docHeader.getAnnotationTypes();
-			if (annoTypes.containsAll(desiredAnnotations)) {
+			if (	(annoTypes.contains(((GrAFImporterProperties) this.getProperties()).getTokenizationLayer()))||
+					(annoTypes.contains(((GrAFImporterProperties) this.getProperties()).getPOSLayer()))) 
+			{
 				desiredDocHeadersPaths.add(docHeaderPath);
 			}
 		}
 		return desiredDocHeadersPaths;
 	}	
-	
-	/** returns a tiny list of document header paths, which point to documents 
-	 *  that are annotated with ALL 14 types of annotation present in MASC 3.0.0. */
-	public static List<String> genDocHeaderPathsTestset(String corpusPath) 
-				  throws FileNotFoundException {
-		File corpusDirectory = new File(corpusPath);
-		String[] relativeTestDocHeaderPaths = {
-				"data/written/newspaper/nyt/20000424_nyt-NEW.hdr",
-				"data/written/newspaper/nyt/20000410_nyt-NEW.hdr",
-				"data/written/newspaper/nyt/20000415_apw_eng-NEW.hdr",
-				"data/written/newspaper/nyt/20020731-nyt.hdr",
-				"data/written/newspaper/wsj/wsj_0027.hdr"};
-
-		List<String> desiredDocHeaderPaths = new ArrayList<String>();
-		for (String filePath : relativeTestDocHeaderPaths) {
-			File docHeaderFile = new File(corpusDirectory, filePath);
-			desiredDocHeaderPaths.add(docHeaderFile.getAbsolutePath());
-		}
-		return desiredDocHeaderPaths;
-	}
 	
 	/** maps document IDs to MascDocumentHeader objects*/
 	public static HashMap<String, String> createDocIdDocHeaderMap(List<String> documentHeaderPaths) 
@@ -168,7 +145,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		  }
 		  return fnamesList;
 	}
-	
+		
 	/**
 	 * This method is called by Pepper at the start of conversion process. 
 	 * It shall create the structure the corpus to import. That means creating all necessary SCorpus, 
@@ -183,33 +160,13 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		String corpusPath= this.getCorpusDefinition().getCorpusPath().toFileString();
 		try
 		{
-			String documentSet= "COMPLETE";
-			
-	//		List<String> docHeaderPaths = createInputDocumentList("TESTSET"); // processes just 4 documents
-			List<String> docHeaderPaths = null;
-			ProcessedDocumentSet docSet = ProcessedDocumentSet.valueOf(documentSet);
-			switch(docSet) {
-				case COMPLETE: 
-//					docHeaderPaths= GrafReader.getDocumentHeaderPaths(corpusPath);
-					docHeaderPaths= recursiveListDir(corpusPath, ".hdr");
-				case POS_TAGGED:
-//					List<String> allDocHeaderPaths = GrafReader.getDocumentHeaderPaths(corpusPath);
-					List<String> allDocHeaderPaths= recursiveListDir(corpusPath, ".hdr");
-					docHeaderPaths= getTokenizedPOSTaggedDocHeaders(allDocHeaderPaths);
-				case TESTSET:
-					docHeaderPaths= genDocHeaderPathsTestset(corpusPath);
-				default:
-//					docHeaderPaths= GrafReader.getDocumentHeaderPaths(corpusPath);
-					docHeaderPaths= recursiveListDir(corpusPath, ".hdr");
-			}
+			List<String> docHeaderPaths = recursiveListDir(corpusPath, ((GrAFImporterProperties)this.getProperties()).getHeaderFileEnding());;
 			
 			List<String> docIds = GrafReader.getDocumentIds(docHeaderPaths);
 			docIdDocHeaderMap = createDocIdDocHeaderMap(docHeaderPaths);
 			
 			// generate a corpus (incl. subcorpora) and add documents to them.
 			// right now these documents only contain an SName string
-			
-						
 			SCorpus corpus = SaltFactory.eINSTANCE.createSCorpus();
 			corpus.setSName("MASC_labels_not_namespaces");
 			corpusGraph.addSNode(corpus); // add corpus to corpus graph
@@ -220,53 +177,12 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 				corpusGraph.addSDocument(corpus, sDoc);
 			}		
 			
-			
 			rscHeader = new GrafResourceHeader(corpusPath);
 		}catch (Exception e)
 		{
 			throw new GrAFImporterException("Cannot import corpus at location '"+corpusPath+"'. ", e);
 		}
 		
-	}
-	
-	/**
-	 * If this method is not really implemented, it will call the Method start(sElementId) for every document 
-	 * and corpus, which shall be processed. If it is not really implemented, the method-call will be serial and
-	 * and not parallel. To implement a parallelization override this method and take care, that your code is
-	 * thread-safe. 
-	 * For getting an impression how to implement this method, here is a snipplet of super class 
-	 * PepperImporter of this method:
-	 * <br/>
-	 * boolean isStart= true;
-	 * SElementId sElementId= null;
-	 * while ((isStart) || (sElementId!= null))
-	 * {	
-	 *  isStart= false;
-	 *		sElementId= this.getPepperModuleController().get();
-	 *		if (sElementId== null)
-	 *			break;
-	 *		
-	 *		//call for using push-method
-	 *		this.start(sElementId);
-	 *		
-	 *		if (this.returningMode== RETURNING_MODE.PUT)
-	 *		{	
-	 *			this.getPepperModuleController().put(sElementId);
-	 *		}
-	 *		else if (this.returningMode== RETURNING_MODE.FINISH)
-	 *		{	
-	 *			this.getPepperModuleController().finish(sElementId);
-	 *		}
-	 *		else 
-	 *			throw new PepperModuleException("An error occurs in this module (name: "+this.getName()+"). The returningMode isn't correctly set (it's "+this.getReturningMode()+"). Please contact module supplier.");
-	 *		this.end();
-	 *	}
-	 * After all documents were processed this method of super class will call the method end().
-	 */
-	@Override
-	public void start() throws PepperModuleException
-	{
-		super.start();
 	}
 	
 	
@@ -316,6 +232,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		{//only if given sElementId belongs to an object of type SDocument or SCorpus	
 			if (sElementId.getSIdentifiableElement() instanceof SDocument)
 			{
+				
 				try {
 					SDocument sDocument= (SDocument)sElementId.getSIdentifiableElement();
 					// add new document graph to SDocument
@@ -338,9 +255,11 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 																iNodeIDsToSTokenSSpanIdsMap, 
 																sDocument);
 					
+					
+					
 					// adds syntax structures from the IGraph's syntax annotation
 					// level to SDocument
-					IGraph syntaxIGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath, "f.ptb");
+					IGraph syntaxIGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath, ((GrAFImporterProperties)this.getProperties()).getSyntaxLayer());
 					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
 					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
 											iNodeIDsToSTokenSSpanIdsMap, 
@@ -352,21 +271,6 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					new GrAFImporterException("Cannot import SDocument '"+sElementId+"' ",e);
 				}
 			}
-			
-//			SaltWriter.saveSaltProject(saltProject);
-
 		}//only if given sElementId belongs to an object of type SDocument or SCorpus
-	}
-	
-	/**
-	 * This method is called by method start() of super class PepperModule. If you do not implement
-	 * this method, it will call start(sElementId), for all super corpora in current SaltProject. The
-	 * sElementId refers to one of the super corpora. 
-	 */
-	@Override
-	public void end() throws PepperModuleException
-	{
-		//TODO /8/: implement this method when necessary 
-		super.end();
 	}
 }

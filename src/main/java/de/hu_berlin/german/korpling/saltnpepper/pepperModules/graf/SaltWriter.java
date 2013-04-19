@@ -55,29 +55,6 @@ public class SaltWriter {
 	
 	/** A Salt dominance relation */
 	public static STYPE_NAME domRel = STYPE_NAME.SDOMINANCE_RELATION;
-
-	
-//	/** creates a corpus graph and adds an {@link SDocument} for each document ID. 
-//	 *  SDocuments will later be filled with the documents' primary text and its annotations.
-//	 */
-//	public static SCorpusGraph createCorpusStructure(SaltProject saltProject, 
-//													 List<String> docIds,
-//													 String corpusName) 
-//	{
-//		SCorpusGraph sCorpGraph = SaltFactory.eINSTANCE.createSCorpusGraph();
-//		saltProject.getSCorpusGraphs().add(sCorpGraph);
-//		
-//		SCorpus corpus = SaltFactory.eINSTANCE.createSCorpus();
-//		corpus.setSName(corpusName);
-//		sCorpGraph.addSNode(corpus); // add corpus to corpus graph
-//		
-//		for (String docId: docIds) {
-//			SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
-//			sDoc.setSName(docId);
-//			sCorpGraph.addSDocument(corpus, sDoc);
-//		}		
-//		return sCorpGraph;
-//	}
 	
 	/** adds an annotation to an SNode or its subclasses, e.g. SToken or SSpan.
 	 *  @param sAnnotationName - the name that this type of annotation shall 
@@ -205,24 +182,6 @@ public class SaltWriter {
 				return addIRegionsToSDocument(iDocumentGraph, sDocument, new String[] {"f.seg", "f.penn"});
 				
 			case APPROXIMATE_MATCH:
-//				STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
-//				HashMap<String, SLayer> annoTypeSlayerMap = new HashMap<String, SLayer>();
-//
-//				HashSet<String> annotationTypes = GrafReader.getGraphAnnotationTypes(iDocumentGraph);
-//				for (String annoType : annotationTypes) {
-//					SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
-//					annoLayer.setSName(annoType);
-//					annoTypeSlayerMap.put(annoType, annoLayer);
-//					sDocument.getSDocumentGraph().addSLayer(annoLayer);
-//				}
-//
-//				HashMap<String, String> regionIdToTokenIdMap = new HashMap<String, String>();
-//				for (IRegion iRegion : iDocumentGraph.getRegions()) {
-//					String regionId = iRegion.getId();
-//					String tokenId = addIRegionToSDocument(iRegion, sDocument, sTextualDS, annoTypeSlayerMap);
-//					regionIdToTokenIdMap.put(regionId, tokenId);
-//				}
-//				return regionIdToTokenIdMap;
 				throw new UnsupportedOperationException("Not implemented yet.");
 				
 			case VIRTUAL_TOKEN_LEVEL: 
@@ -414,15 +373,11 @@ public class SaltWriter {
 			if (mappedElementPair.getKey().equals("SToken")) {
 				String sTokenId = mappedElementPair.getValue();
 				SToken sToken = tokenIdToTokenMap.get(sTokenId);
-//				System.out.println("DEBUG: add annotationINode '"+iNodeId+"' to token '"+sTokenId+"'.");
-//				GrafGraphInfo.printNodeInfo(annotationINode, iGraph);
 				addAnnotationsToSToken(annotationINode, sToken);
 			}
 			else if (mappedElementPair.getKey().equals("SSpan")) {
 				String sSpanId = mappedElementPair.getValue();
 				SSpan sSpan = spanIdToSpanMap.get(sSpanId);
-//				System.out.println("DEBUG: add annotationINode '"+iNodeId+"' to span '"+sSpanId+"'.");
-//				GrafGraphInfo.printNodeInfo(annotationINode, iGraph);
 				addAnnotationsToSSpan(annotationINode, sSpan);
 			}
 			else {
@@ -439,7 +394,6 @@ public class SaltWriter {
 	public static void addAnnotationsToSSpan(INode annotationINode, SSpan sSpan) {
 		String annotationId = annotationINode.getId();
 		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
-//		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
 		String annoLabel = iAnnotation.getLabel();
 		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
 
@@ -460,7 +414,6 @@ public class SaltWriter {
 		
 		String annotationId = annotationINode.getId();
 		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
-//		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
 		String annoLabel = iAnnotation.getLabel();
 		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
 
@@ -472,67 +425,6 @@ public class SaltWriter {
 									sToken);
 		}
 	}
-
-//	public static void createSyntaxStructure(SDocument sDocument){
-
-//		// there are two methods named "addSNode" for a SDocumentGraph
-//		// the first one simply adds the single parameter of the type SNode to the SDocumentGraph
-//		// the second one requires three arguments: two SNodes and a STYPE_NAME
-//		// this method will create a SRelation between the two SNodes. The type of the SRelation is determined by
-//		// the STYPE_NAME, but only four STYPE_NAMEs are allowed: SDOMINANCE_RELATION, SPOINTING_RELATION,
-//		// SSPANNING_RELATION and STEXTUAL_RELATION. For the hierarchical structure that is intended to build, SDOMINANCE_RELATION is used.
-//		// the first SNode (the source of the relation) is required to be contained in the SDocumentGraph already, so when building such
-//		// a tree, the root node has to be added to the SDocumentGraph before establishing the relations between the other nodes.
-//			
-//		// creating a variable for the type of relation between the constituents (dominance relation)
-//		// (this is just for convenience)
-//		STYPE_NAME domRel = STYPE_NAME.SDOMINANCE_RELATION;
-//
-		// FIXME: ask Florian: what does the root node do in the doc graph??? does it only dominate the 1st SToken? 
-//		// adding the root SNode to the SDocumentGraph
-//		docGraph.addSNode(sq);				
-//		
-//		// adding the target nodes to the SDocumentGraph and creating SDominanceRelations between the respective nodes
-//		// (addSNode returns the created SDominanceRelation, but it it not used here)
-//		docGraph.addSNode(sq,    sTokens.get(0),  domRel); // "Is"
-//		docGraph.addSNode(sq,    np1,             domRel);
-//		docGraph.addSNode(np1,   sTokens.get(1),  domRel); // "this"
-//		docGraph.addSNode(np1,   sTokens.get(2),  domRel); // "example"
-//		docGraph.addSNode(sq,    adjp1,           domRel);
-//		docGraph.addSNode(adjp1, adjp2,           domRel);
-//		docGraph.addSNode(adjp2, sTokens.get(3),  domRel); // "more"
-//		docGraph.addSNode(adjp2, sTokens.get(4),  domRel); // "complicated"				
-//		docGraph.addSNode(adjp1, sbar,            domRel);
-//		docGraph.addSNode(sbar,  sTokens.get(5),  domRel); // "than"
-//		docGraph.addSNode(sbar,  s1,              domRel);				
-//		docGraph.addSNode(s1,    np2,             domRel);				
-//		docGraph.addSNode(np2,   sTokens.get(6),  domRel); // "it"
-//		docGraph.addSNode(s1,    vp1,             domRel);
-//		docGraph.addSNode(vp1,   sTokens.get(7),  domRel); // "appears"				
-//		docGraph.addSNode(vp1,   s2,              domRel);				
-//		docGraph.addSNode(s2,    vp2,             domRel);
-//		docGraph.addSNode(vp2,   sTokens.get(8),  domRel); // "to"				
-//		docGraph.addSNode(vp2,   vp3,             domRel);
-//		docGraph.addSNode(vp3,   sTokens.get(9),  domRel); // "be"
-//			
-//		// creating a layer named "syntax" for the constituents of the tree
-//		SLayer syntaxLayer = SaltFactory.eINSTANCE.createSLayer();
-//		syntaxLayer.setSName("syntax");
-//		docGraph.addSLayer(syntaxLayer);
-//
-//		// adding the constituents to the syntax layer
-//		syntaxLayer.getSNodes().add(sq);
-//		syntaxLayer.getSNodes().add(np1);
-//		syntaxLayer.getSNodes().add(adjp1);				
-//		syntaxLayer.getSNodes().add(adjp2);
-//		syntaxLayer.getSNodes().add(sbar);				
-//		syntaxLayer.getSNodes().add(s1);
-//		syntaxLayer.getSNodes().add(np2);				
-//		syntaxLayer.getSNodes().add(vp1);
-//		syntaxLayer.getSNodes().add(s2);				
-//		syntaxLayer.getSNodes().add(vp2);
-//		syntaxLayer.getSNodes().add(vp3);				
-//	}
 
 	/** creates a new SStructure for each INode in an f.ptb IGraph, each of 
 	 *  which represent a syntax node (S, NP etc.) 
@@ -573,6 +465,7 @@ public class SaltWriter {
 				}
 				
 				docGraph.addSNode(rootSStructure, dominatedSStructure, domRel);
+				
 				System.out.println("added domrel from root to " + dominatedSStructure.getId());
 			} 
 			else {
