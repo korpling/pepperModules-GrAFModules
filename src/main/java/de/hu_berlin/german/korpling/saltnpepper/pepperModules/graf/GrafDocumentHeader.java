@@ -74,13 +74,4 @@ public class GrafDocumentHeader extends DocumentHeader {
 		Node docHeaderNode = this.getNode("/g:documentHeader");
 		return this.getAttributeValue(docHeaderNode, "docId");
 	}
-
-
-	public void main(String[] args) throws FileNotFoundException {
-//		String testDocPath = Utils.getVariableFromYamlFile("testDocPath");
-//		File docHeaderFile = new File(testDocPath);
-//		this(docHeaderFile);
-//		this.printDocumentHeaderInfo();
-	}
-
 }

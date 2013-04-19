@@ -1,7 +1,5 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,7 +10,6 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IAnchor;
 import org.xces.graf.api.IAnnotation;
@@ -23,9 +20,6 @@ import org.xces.graf.api.INode;
 import org.xces.graf.api.IRegion;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltProject;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
@@ -541,21 +535,5 @@ public class SaltWriter {
 		
 		addSyntaxTreeRootDomRelsToDocGraph(syntaxIGraph, docGraph, iNodeIdToSStructureMap, rootSStructure);
 		addSyntaxNodeDomRelsToDocGraph(syntaxIGraph, docGraph, iNodeIdToSStructureMap, iNodeIDsToSTokenSSpanIdsMap, tokenAndSpanMaps);
-	}
-	
-
-//	/** saves a Salt project and reloads it for testing purposes 
-//	 *  FIXME: add parameter for storage directory */
-//	public static void saveSaltProject(SaltProject saltProject) 
-//						 throws FileNotFoundException {
-//		String pathString = Utils.getVariableFromYamlFile("saltXMLDir");
-//		File path = new File(pathString);
-//		if (!path.exists()) {
-//			path.mkdirs();
-//		}
-//		System.out.print("store salt project in path: '"+path.getAbsolutePath()+"' ... ");
-//		saltProject.saveSaltProject(URI.createFileURI(path.getAbsolutePath()));
-//		System.out.println("OK");	
-//	}
-	
+	}	
 }

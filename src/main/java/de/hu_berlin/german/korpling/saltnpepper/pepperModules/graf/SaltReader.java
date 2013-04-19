@@ -90,8 +90,6 @@ public class SaltReader {
     /** returns the primary text offsets of an SSpan
      *  FIXME: untested */
 	public static Pair<Integer, Integer> getSSpanOffset(SSpan span) {
-//		List<SToken> tokens = getSTokensFromSSpan(span, span.getSDocumentGraph());
-//		return null;
 		EList<STYPE_NAME> interestingRelations= new BasicEList<STYPE_NAME>();
 		interestingRelations.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
 		SDocumentGraph docGraph = span.getSDocumentGraph();
