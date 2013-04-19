@@ -15,23 +15,25 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 
-public class GrAFExporterException extends PepperModuleException 
-{
+public class GrAFImporterException extends PepperModuleException {
+
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -6636435213274267915L;
-
-	public GrAFExporterException()
+	private static final long serialVersionUID = 6942425892766934367L;
+	
+	
+	private static final String STD_MSG= "This exception was thrown by the paula import module: "; 
+	public GrAFImporterException()
 	{ super(); }
 	
-    public GrAFExporterException(String s)
-    { super(s); }
+    public GrAFImporterException(String s)
+    { super(STD_MSG+ s); }
     
-	public GrAFExporterException(String s, Throwable ex)
-	{super(s, ex); }
+	public GrAFImporterException(String s, Throwable ex)
+	{super(STD_MSG+s, ex); }
 }

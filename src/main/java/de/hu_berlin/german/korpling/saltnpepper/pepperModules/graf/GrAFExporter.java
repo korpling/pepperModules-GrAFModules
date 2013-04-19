@@ -28,28 +28,22 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+import org.osgi.service.component.annotations.Component;
 import org.osgi.service.log.LogService;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperFWException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.FormatDefinition;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperExporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperInterfaceFactory;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperManipulator;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperExporterImpl;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFExporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.exceptions.GraphException;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.SaltCommonPackage;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.graf.v01.GrAFResourceFactory;
+//import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.resources.graf.v01.GrAFResourceFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
@@ -71,42 +65,15 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
  *
  */
 @Component(name="GrAFExporterComponent", factory="PepperExporterComponentFactory")
-@Service(value=PepperExporter.class)
 public class GrAFExporter extends PepperExporterImpl implements PepperExporter
 {
 	public GrAFExporter()
 	{
 		super();
-		
-		{//setting name of module
-			this.name= "GrAFExporter";
-		}//setting name of module
-		
-		{//for testing the symbolic name has to be set without osgi
-			if (	(this.getSymbolicName()==  null) ||
-					(this.getSymbolicName().equalsIgnoreCase("")))
-				this.setSymbolicName("de.hu_berlin.german.korpling.saltnpepper.pepperModules.GrAFModules");
-		}//for testing the symbolic name has to be set without osgi
-		
-		{//set list of formats supported by this module
-			this.supportedFormats= new BasicEList<FormatDefinition>();
-			FormatDefinition formatDef= PepperInterfaceFactory.eINSTANCE.createFormatDefinition();
-			formatDef.setFormatName("graf");
-			formatDef.setFormatVersion("1.0");
-			this.supportedFormats.add(formatDef);
-		}
-		
-		{//just for logging: to say, that the current module has been loaded
-			if (this.getLogService()!= null)
-				this.getLogService().log(LogService.LOG_DEBUG,this.getName()+" is created...");
-		}//just for logging: to say, that the current module has been loaded
-		
-		{//create resource set
-			// Register XML resource factory
-			this.resourceSet = new ResourceSetImpl();
-			this.resourceSet.getPackageRegistry().put(SaltCommonPackage.eINSTANCE.getNsURI(), SaltCommonPackage.eINSTANCE);
-			this.resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(getGrAFFileEnding(), new XMIResourceFactoryImpl());
-		}//create resource set
+		//setting name of module
+		this.name= "GrAFExporter";
+		//set list of formats supported by this module
+		this.addSupportedFormat("GrAF", "1.0", null);
 	}
 	
 	//===================================== start: thread number
@@ -398,46 +365,46 @@ public class GrAFExporter extends PepperExporterImpl implements PepperExporter
 		
 		public void start(SElementId sElementId) throws PepperModuleException 
 		{
-			if (	(sElementId!= null) &&
-					(sElementId.getSIdentifiableElement()!= null) &&
-					((sElementId.getSIdentifiableElement() instanceof SDocument) ||
-					((sElementId.getSIdentifiableElement() instanceof SCorpus))))
-			{//only if given sElementId belongs to an object of type SDocument or SCorpus	
-				if (sElementId.getSIdentifiableElement() instanceof SDocument)
-				{//export SDocument structure
-					SDocument sDocument= (SDocument) sElementId.getSIdentifiableElement();
-					if (sDocument.getSDocumentGraph()!= null)
-					{//only export, if a structure exists					
-						//creating uri for exporting document
-						URI sDocumentURI= URI.createFileURI(resource.getAbsolutePath());
-						
-						// Register XML resource factory
-						resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("graf", new GrAFResourceFactory());
-						Resource sDocumentResource = resourceSet.createResource(sDocumentURI);
-						sDocumentResource.getContents().add(sDocument.getSDocumentGraph());
-						
-						try 
-						{
-							sDocumentResource.save(null);
-							getPepperModuleController().put(currSElementId);
-						}catch (Exception e)
-						{
-							if (getLogService()!= null)
-							{
-								throw new PepperModuleException("Cannot export document '"+sElementId.getSElementPath()+"', nested exception is: ", e);
-							}
-							
-//							//TODO delete this in delivery state
-							e.printStackTrace();
-							getPepperModuleController().finish(currSElementId);
-						}
-					}//only export, if a structure exists
-				}//export SDocument structure
-			}//only if given sElementId belongs to an object of type SDocument or SCorpus
-			this.lock.lock();
-			this.isFinished= true;
-			this.finishCondition.signal();
-			this.lock.unlock();
+//			if (	(sElementId!= null) &&
+//					(sElementId.getSIdentifiableElement()!= null) &&
+//					((sElementId.getSIdentifiableElement() instanceof SDocument) ||
+//					((sElementId.getSIdentifiableElement() instanceof SCorpus))))
+//			{//only if given sElementId belongs to an object of type SDocument or SCorpus	
+//				if (sElementId.getSIdentifiableElement() instanceof SDocument)
+//				{//export SDocument structure
+//					SDocument sDocument= (SDocument) sElementId.getSIdentifiableElement();
+//					if (sDocument.getSDocumentGraph()!= null)
+//					{//only export, if a structure exists					
+//						//creating uri for exporting document
+//						URI sDocumentURI= URI.createFileURI(resource.getAbsolutePath());
+//						
+//						// Register XML resource factory
+//						resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("graf", new GrAFResourceFactory());
+//						Resource sDocumentResource = resourceSet.createResource(sDocumentURI);
+//						sDocumentResource.getContents().add(sDocument.getSDocumentGraph());
+//						
+//						try 
+//						{
+//							sDocumentResource.save(null);
+//							getPepperModuleController().put(currSElementId);
+//						}catch (Exception e)
+//						{
+//							if (getLogService()!= null)
+//							{
+//								throw new PepperModuleException("Cannot export document '"+sElementId.getSElementPath()+"', nested exception is: ", e);
+//							}
+//							
+////							//TODO delete this in delivery state
+//							e.printStackTrace();
+//							getPepperModuleController().finish(currSElementId);
+//						}
+//					}//only export, if a structure exists
+//				}//export SDocument structure
+//			}//only if given sElementId belongs to an object of type SDocument or SCorpus
+//			this.lock.lock();
+//			this.isFinished= true;
+//			this.finishCondition.signal();
+//			this.lock.unlock();
 		}
 	}
 
