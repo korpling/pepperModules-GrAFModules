@@ -44,26 +44,6 @@ public class GrafReader {
 	 */
 	public static IGraph getAnnoGraph(ResourceHeader rscHeader,
 									  String docHeaderPath,
-									  String[] annoTypes) 
-				   throws GrafException, SAXException, IOException {
-
-		GrafDocumentHeader mascDocHeader = new GrafDocumentHeader(docHeaderPath);
-		List<String> annoTypesList = Arrays.asList(annoTypes); // avoid iterating over String[]
-		List<String> existingAnnotations = mascDocHeader.getAnnotationTypes(); 
-		
-		if (existingAnnotations.containsAll(annoTypesList)) {
-			GrafLoader loader = new GrafLoader(rscHeader);
-			loader.setTypes(annoTypes);	// loads ALL annotations if not specified!	
-			return loader.load(new File(docHeaderPath));								
-		}
-		else throw new NullPointerException("The document was not annotated with the "
-											+ "chosen annotation type(s).");
-	}
-	
-	/** returns an IGraph that includes the chosen annotations made to a document 
-	 */
-	public static IGraph getAnnoGraph(ResourceHeader rscHeader,
-									  String docHeaderPath,
 									  List<String> annoTypes) 
 				   throws GrafException, SAXException, IOException {
 
@@ -88,10 +68,8 @@ public class GrafReader {
 		GrafDocumentHeader mascDocHeader = new GrafDocumentHeader(docHeaderPath);
 		List<String> existingAnnotations = mascDocHeader.getAnnotationTypes(); 
 
-		String[] annoTypes = new String[] {annoType};
-
-		if (existingAnnotations.contains(annoTypes[0]))
-			return getAnnoGraph(rscHeader, docHeaderPath, annoTypes);
+		if (existingAnnotations.contains(annoType))
+			return getAnnoGraph(rscHeader, docHeaderPath, Arrays.asList(annoType));
 		else throw new NullPointerException("The document was not annotated with the "
 											+ "chosen annotation type.");
 	}
