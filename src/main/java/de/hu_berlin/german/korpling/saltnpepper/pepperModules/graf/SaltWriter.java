@@ -481,7 +481,9 @@ public class SaltWriter {
 		HashMap<String, SSpan> spanIDToSSpanMap = tokenAndSpanMaps.getValue();
 		
 		for (INode syntaxINode : syntaxIGraph.getNodes()) {
-			if (!"tok".equals(syntaxINode.getAnnotation().getLabel())) {
+			String syntaxAnnoLabel = syntaxINode.getAnnotation().getLabel();
+//			if (!"tok".equals(syntaxAnnoLabel) && !"Trace".equals(syntaxAnnoLabel)) {
+			if (!"tok".equals(syntaxAnnoLabel)) {
 				SStructure sourceSStructure = iNodeIdToSStructureMap.get(syntaxINode.getId());
 				
 				if (!docGraph.getNodes().contains(sourceSStructure)) {
