@@ -360,4 +360,15 @@ public class GrafReader {
 		}		
 		return syntaxRootNodes;
 	}
+	
+	/** returns true iff an INode has no outgoing edges and does not link to
+	 *  any IRegions. */
+	public static boolean isLeafNode(INode iNode) {
+		if (iNode.getOutEdges().size() == 0 && iNode.getLinks().size() == 0) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}	
 }
