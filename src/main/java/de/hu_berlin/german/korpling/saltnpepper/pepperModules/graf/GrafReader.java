@@ -59,6 +59,25 @@ public class GrafReader {
 		else throw new NullPointerException("The document was not annotated with the "
 											+ "chosen annotation type(s).");
 	}
+	
+	/** returns an IGraph that includes the chosen annotations made to a document 
+	 */
+	public static IGraph getAnnoGraph(ResourceHeader rscHeader,
+									  String docHeaderPath,
+									  List<String> annoTypes) 
+				   throws GrafException, SAXException, IOException {
+
+		GrafDocumentHeader mascDocHeader = new GrafDocumentHeader(docHeaderPath);
+		List<String> existingAnnotations = mascDocHeader.getAnnotationTypes(); 
+		
+		if (existingAnnotations.containsAll(annoTypes)) {
+			GrafLoader loader = new GrafLoader(rscHeader);
+			loader.setTypes(annoTypes);	// loads ALL annotations if not specified!	
+			return loader.load(new File(docHeaderPath));								
+		}
+		else throw new NullPointerException("The document was not annotated with the "
+											+ "chosen annotation type(s).");
+	}
 
 	/** returns an IGraph that includes only ONE annotation level */ 
 	public static IGraph getAnnoGraph(ResourceHeader rscHeader,
@@ -79,18 +98,28 @@ public class GrafReader {
 
 	
 	/** Inefficient method to retrieve a list of all the annotation types used
-	 *  in an IGraph.
-	 *  Use MascDocumentHeader.getDocumentAnnotationTypes() instead, if you just 
+	 *  in an IGraph. Annotation types that don't have their own name space
+	 *  won't be listed (e.g. 'f.fntok' or 'f.ptbtok') since they reuse
+	 *  existing name spaces (e.g. 'f.fn' and 'f.ptb'). 
+	 *  Use GrafDocumentHeader.getDocumentAnnotationTypes() instead, if you just 
 	 *  want to know which annotation types are specified in the document 
 	 *  header. Use GrafResourceHeader.getCorpusAnnotationTypes() to retrieve
 	 *  all the annotation types used in the corpus. */
 	public static HashSet<String> getGraphAnnotationTypes(IGraph iGraph) {
 		Collection<IRegion> regions = iGraph.getRegions();
+		Collection<INode> nodes = iGraph.getNodes();
 		HashSet<String> annoTypes = new HashSet<String>();
 		
 		for (IRegion region : regions) {
 			String regionId = region.getId();
 			String annotationType = GrafReader.convertElementIdToAnnotationType(regionId);
+			if (!annoTypes.contains(annotationType)) {
+				annoTypes.add(annotationType);
+			}
+		}
+		for (INode node : nodes) {
+			String nodeId = node.getId();
+			String annotationType = GrafReader.convertElementIdToAnnotationType(nodeId);
 			if (!annoTypes.contains(annotationType)) {
 				annoTypes.add(annotationType);
 			}
