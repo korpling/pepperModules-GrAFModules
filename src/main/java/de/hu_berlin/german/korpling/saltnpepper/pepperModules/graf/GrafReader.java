@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.eclipse.emf.common.util.EList;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IEdge;
 import org.xces.graf.api.IGraph;
@@ -22,6 +23,12 @@ import org.xces.graf.io.dom.DocumentHeader;
 import org.xces.graf.io.dom.ResourceHeader;
 import org.xces.graf.util.GraphUtils;
 import org.xml.sax.SAXException;
+
+import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 
 /** 
  * These annotation types ("f.ids") are used in the MASC 3.0.0 corpus: 
@@ -359,6 +366,19 @@ public class GrafReader {
 			}
 		}		
 		return syntaxRootNodes;
+	}
+	
+	/** returns the STokens that represent the primary text segments that an
+	 *  IRegion links to. */
+	public static EList<SToken> getSTokensFromIRegions(IGraph iGraph, IRegion region, 
+			SDocumentGraph docGraph) throws GrafException {
+		STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
+		SDataSourceSequence sDataSourceSequence = SaltFactory.eINSTANCE.createSDataSourceSequence();
+		int[] regionOffsets = getRegionOffsets(region);
+		sDataSourceSequence.setSStart(regionOffsets[0]);
+		sDataSourceSequence.setSEnd(regionOffsets[1]);
+		sDataSourceSequence.setSSequentialDS(sTextualDS);
+		return docGraph.getSTokensBySequence(sDataSourceSequence);
 	}
 	
 	/** returns true iff an INode has no outgoing edges and does not link to

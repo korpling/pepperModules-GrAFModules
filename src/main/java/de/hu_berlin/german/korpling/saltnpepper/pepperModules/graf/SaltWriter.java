@@ -21,6 +21,7 @@ import org.xces.graf.api.IRegion;
 
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
@@ -33,6 +34,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSampleException;
+
 
 public class SaltWriter {
 	
@@ -471,49 +473,70 @@ public class SaltWriter {
 	}
 	
 	/** add a dominance relation from each syntax node (all nodes in a "f.ptb"
-	 *  IGraph that don't have the label "tok") to the nodes they dominate */
+	 *  IGraph that have outgoing edges) to the nodes they dominate.
+	 *  NOTE: "tok" nodes don't have outgoing edges but links to regions to 
+	 *  primary text segments (aka string onsets/offsets) 
+	 * @throws GrafException */
 	public static void addSyntaxNodeDomRelsToDocGraph(IGraph syntaxIGraph, 
 			SDocumentGraph docGraph, 
 			HashMap<String, SStructure> iNodeIdToSStructureMap,
 			HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap,
-			Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps) {
+			Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps) throws GrafException {
 		
-		STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
 		HashMap<String, SToken> tokenIDToSTokenMap = tokenAndSpanMaps.getKey();
 		HashMap<String, SSpan> spanIDToSSpanMap = tokenAndSpanMaps.getValue();
 		
 		for (INode syntaxINode : syntaxIGraph.getNodes()) {
-			String syntaxAnnoLabel = syntaxINode.getAnnotation().getLabel();
-//			if (!"tok".equals(syntaxAnnoLabel) && !"Trace".equals(syntaxAnnoLabel)) {
-			if (!"tok".equals(syntaxAnnoLabel)) {
+			if (syntaxINode.getOutEdges().size() > 0) {
 				SStructure sourceSStructure = iNodeIdToSStructureMap.get(syntaxINode.getId());
 				
 				if (!docGraph.getNodes().contains(sourceSStructure)) {
-//					System.out.println("\tDEBUGGING: sourceSStructure ("+ sourceSStructure + ") with ID '" + sourceSStructure.getId() + "' to be added");
 					docGraph.addSNode(sourceSStructure);
 				}
 				
 				List<INode> connectedSyntaxINodes = GrafReader.getOutboundConnectedNodes(syntaxINode);
 				for (INode connectedSyntaxINode : connectedSyntaxINodes) {
 					String dominatedINodeId = connectedSyntaxINode.getId();
-					if (iNodeIdToSStructureMap.containsKey(dominatedINodeId)) {
-						SStructure dominatedSStructure = iNodeIdToSStructureMap.get(dominatedINodeId);
-						docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
-					} 
-					else {
-						Pair<String, String> dominatedSElement = iNodeIDsToSTokenSSpanIdsMap.get(dominatedINodeId);
-						String sElementId = dominatedSElement.getValue();
-						if (tokenIDToSTokenMap.containsKey(sElementId)) {
-							SToken dominatedSToken = tokenIDToSTokenMap.get(sElementId);							
-							docGraph.addSNode(sourceSStructure, dominatedSToken, domRel);
+
+					// don't add domrels to "tok" nodes, but to the tokens
+					// they represent
+					if (connectedSyntaxINode.getOutEdges().size() == 0) {
+						List<ILink> links = connectedSyntaxINode.getLinks();
+						if (links.size() > 0) { // ignore nodes that don't have links,
+												// i.e. "Trace" nodes etc.
+							for (ILink link : links) {
+								Iterable<IRegion> regions = link.regions();
+								for (IRegion region : regions) {
+									EList<SToken> dominatedSTokens = GrafReader.getSTokensFromIRegions(syntaxIGraph,
+																					region, docGraph);
+									for (SToken dominatedSToken : dominatedSTokens) {
+										docGraph.addSNode(sourceSStructure, dominatedSToken, domRel);
+									}
+								}
+							}							
 						}
-						else if (spanIDToSSpanMap.containsKey(sElementId)) {
-							SSpan dominatedSSpan = spanIDToSSpanMap.get(sElementId);
-							docGraph.addSNode(sourceSStructure, dominatedSSpan, domRel);
-						}
+					}
+				
+					else { // handle dominated nodes with outgoing edges
+						if (iNodeIdToSStructureMap.containsKey(dominatedINodeId)) {
+							SStructure dominatedSStructure = iNodeIdToSStructureMap.get(dominatedINodeId);
+							docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
+						} 
 						else {
-							System.out.println("DEBUG: DAMN, can't find element '"+sElementId+"' in token map or span map!1!!");
-						}
+							Pair<String, String> dominatedSElement = iNodeIDsToSTokenSSpanIdsMap.get(dominatedINodeId);
+							String sElementId = dominatedSElement.getValue();
+							if (tokenIDToSTokenMap.containsKey(sElementId)) {
+								SToken dominatedSToken = tokenIDToSTokenMap.get(sElementId);							
+								docGraph.addSNode(sourceSStructure, dominatedSToken, domRel);
+							}
+							else if (spanIDToSSpanMap.containsKey(sElementId)) {
+								SSpan dominatedSSpan = spanIDToSSpanMap.get(sElementId);
+								docGraph.addSNode(sourceSStructure, dominatedSSpan, domRel);
+							}
+							else {
+								System.out.println("DEBUG: DAMN, can't find element '"+sElementId+"' in token map or span map!1!!");
+							}
+						}						
 					}
 				}	
 			}
