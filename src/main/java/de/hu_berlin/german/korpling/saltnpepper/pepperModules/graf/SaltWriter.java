@@ -421,11 +421,12 @@ public class SaltWriter {
 	}
 
 	/** creates a new SStructure for each INode in an f.ptb IGraph, each of 
-	 *  which represent a syntax node (S, NP etc.) 
+	 *  which represent a syntax node (S, NP etc.) and returns a map from
+	 *  INode IDs to the corresponding SStructure
 	 *  
 	 * @param syntaxIGraph - an IGraph that only contains the "f.ptb" 
 	 *  	annotation type (or similar) */
-	public static HashMap<String, SStructure> mapINodesToSStructures(IGraph syntaxIGraph) {
+	public static HashMap<String, SStructure> createSyntaxINodeSStructures(IGraph syntaxIGraph) {
 		// map INodes to SSTructures
 		HashMap<String, SStructure> iNodeIdToSStructureMap = new HashMap<String, SStructure>();
 		Collection<INode> syntaxINodes = syntaxIGraph.getNodes();
@@ -477,6 +478,7 @@ public class SaltWriter {
 			HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap,
 			Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps) {
 		
+		STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
 		HashMap<String, SToken> tokenIDToSTokenMap = tokenAndSpanMaps.getKey();
 		HashMap<String, SSpan> spanIDToSSpanMap = tokenAndSpanMaps.getValue();
 		
@@ -528,7 +530,7 @@ public class SaltWriter {
 		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
 		List<SToken> sTokens= Collections.synchronizedList(docGraph.getSTokens());
 
-		HashMap<String, SStructure> iNodeIdToSStructureMap = mapINodesToSStructures(syntaxIGraph); 
+		HashMap<String, SStructure> iNodeIdToSStructureMap = createSyntaxINodeSStructures(syntaxIGraph); 
 		
 		// FIXME: IGraph.getRoots() is broken, so we got to create/add our own root for now
 		SStructure rootSStructure = SaltFactory.eINSTANCE.createSStructure();
