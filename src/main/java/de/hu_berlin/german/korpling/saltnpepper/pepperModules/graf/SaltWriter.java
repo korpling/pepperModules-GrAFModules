@@ -433,14 +433,13 @@ public class SaltWriter {
 		HashMap<String, SStructure> iNodeIdToSStructureMap = new HashMap<String, SStructure>();
 		Collection<INode> syntaxINodes = syntaxIGraph.getNodes();
 		for (INode syntaxINode: syntaxINodes) {
-			if (!syntaxINode.getAnnotation().getLabel().equals("tok")) {
+			if (syntaxINode.getOutEdges().size() > 0) {
 				// create an SStructure for each syntax node, i.e. nodes that 
 				// are labeled with 'S', 'NP' etc. but don't create SStructures
-				// for tokens.
+				// for "tok" nodes.
 				SStructure syntaxSStructure = SaltFactory.eINSTANCE.createSStructure();
 				syntaxSStructure.setSName(syntaxINode.getId());
 				iNodeIdToSStructureMap.put(syntaxINode.getId(), syntaxSStructure);
-				
 			}
 		}
 		return iNodeIdToSStructureMap;
