@@ -32,8 +32,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSampleException;
+//import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSample;
+//import de.hu_berlin.german.korpling.saltnpepper.salt.saltSample.SaltSampleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
 
 
 public class SaltWriter {
@@ -91,9 +92,9 @@ public class SaltWriter {
 	 */
 	public static void addPrimaryTextToDocument(SDocument sDocument, String primaryText){
 		if (sDocument== null)
-			throw new SaltSampleException("Cannot create example, because the given sDocument is empty.");
+			throw new GrAFImporterException("Cannot create example, because the given sDocument is empty.");
 		if (sDocument.getSDocumentGraph()== null)
-			throw new SaltSampleException("Cannot create example, because the given sDocument does not contain an SDocumentGraph.");
+			throw new GrAFImporterException("Cannot create example, because the given sDocument does not contain an SDocumentGraph.");
 		STextualDS sTextualDS = null;
 		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
 		sTextualDS.setSText(primaryText);
@@ -543,11 +544,12 @@ public class SaltWriter {
 	}
 	
 	/** @param syntaxIGraph - an IGraph that only contains the "f.ptb" 
-	 *  	annotation type (or similar) */
+	 *  	annotation type (or similar) 
+	 * @throws GrafException */
 	public static void addSyntaxToSDocument(IGraph syntaxIGraph,
 			HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap,
 			Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps,
-			SDocument sDocument) {
+			SDocument sDocument) throws GrafException {
 		
 		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
 		List<SToken> sTokens= Collections.synchronizedList(docGraph.getSTokens());
