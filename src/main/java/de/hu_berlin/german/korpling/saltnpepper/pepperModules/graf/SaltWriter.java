@@ -391,14 +391,15 @@ public class SaltWriter {
 	public static void addAnnotationsToSSpan(INode annotationINode, SSpan sSpan) {
 		String annotationId = annotationINode.getId();
 		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
-		String annoLabel = iAnnotation.getLabel();
+		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
+//		String annoLabel = iAnnotation.getLabel();
 		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
 
 		for (IFeature feature : annoFeatures) {
 				addAnnotationToNode(feature.getName(), 
 									annotationId, 
 									feature.getStringValue(), 
-									annoLabel, 
+									annoNamespace, 
 									sSpan);
 		}
 	}
@@ -411,14 +412,15 @@ public class SaltWriter {
 		
 		String annotationId = annotationINode.getId();
 		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
-		String annoLabel = iAnnotation.getLabel();
+		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
+//		String annoLabel = iAnnotation.getLabel();
 		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
 
 		for (IFeature feature : annoFeatures) {
 				addAnnotationToNode(feature.getName(), 
 									annotationId, 
 									feature.getStringValue(), 
-									annoLabel, 
+									annoNamespace, 
 									sToken);
 		}
 	}
