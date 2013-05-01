@@ -188,6 +188,17 @@ public class GrafReader {
 		return filteredNodes;
 	}	
 	
+	/** returns a list of all INodes that are connected to the give INode
+	 *  (via ingoing edges). */
+	private static List<INode> getInboundConnectedNodes(INode node) {
+		List<IEdge> inEdges = node.getInEdges();
+		List<INode> connectedNodes = new ArrayList<INode>();
+		for (IEdge inEdge : inEdges) {
+			connectedNodes.add(inEdge.getFrom());
+		}
+		return connectedNodes;
+	}
+	
 	/** returns a list of all INodes that the given INode is connected to 
 	 *  (via outgoing edges). */
 	public static List<INode> getOutboundConnectedNodes(INode node) {
@@ -390,5 +401,26 @@ public class GrafReader {
 		else {
 			return false;
 		}
-	}	
+	}
+	
+	/** returns the root INode of the syntax tree to which the leaf node belongs. */
+	public static INode getTreeRootNodeFromLeafNode(INode leafNode, IGraph syntaxGraph) {
+		List<INode> syntaxTreeRootsINodes = getSyntaxTreeRootsINodes(syntaxGraph);
+		List<String> rootNodeCandidateIds = new ArrayList<String>();
+		for (INode rootNodeCandidate : syntaxTreeRootsINodes) {
+			String candidateId = rootNodeCandidate.getId();
+			rootNodeCandidateIds.add(candidateId);
+		}
+		INode firstParentNode = leafNode.getInEdge(0).getFrom();
+		if (rootNodeCandidateIds.contains(firstParentNode.getId())) {
+			return firstParentNode;
+		}
+		else {
+			return getTreeRootNodeFromLeafNode(firstParentNode, syntaxGraph);
+		}
+	}
 }
+
+
+
+
