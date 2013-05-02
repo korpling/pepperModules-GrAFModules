@@ -3,11 +3,13 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -419,6 +421,47 @@ public class GrafReader {
 			return getTreeRootNodeFromLeafNode(firstParentNode, syntaxGraph);
 		}
 	}
+	
+	/** returns a list of token node ID (with ILinks to IRegion to segments of
+	 *  the primary text) that elements of the syntax tree represented by the
+	 *  given root node.*/
+	public static Collection<String> getTokenNodesCoveredByRootNode(INode rootNode) {
+		List<INode> connectedNodes = getOutboundConnectedNodes(rootNode);
+		Collection<String> tokenNodeIds = new TreeSet<String>(Collator.getInstance());
+		for (INode connectedNode : connectedNodes) {
+			// a token node is an INode that has at least 1 ILink (to an IRegion)
+			if (connectedNode.getLinks().size() > 0) {
+				tokenNodeIds.add(connectedNode.getId());
+			}
+			else {
+				Collection<String> recursivelyConnectedTokenNodes = getTokenNodesCoveredByRootNode(connectedNode);
+				tokenNodeIds.addAll(recursivelyConnectedTokenNodes);
+			}
+		}
+		return tokenNodeIds;
+	}
+	
+	/** given a leaf node, traverse upwards until you reach a node that is 
+	 *  connected to token nodes, return a list of these token node IDs. 
+	 *  the token node IDs belong to tokens to the right of the leaf node. */
+	public static Collection<String> getBranchingAncestorTokenNodeIds(INode leafNode) {
+		INode firstAncestor = leafNode.getInEdge(0).getFrom();
+		Collection<String> tokenNodeIdsCoveredByAncestor = getTokenNodesCoveredByRootNode(firstAncestor);
+		if (tokenNodeIdsCoveredByAncestor.size() > 0) {
+			return tokenNodeIdsCoveredByAncestor;
+		}
+		else {
+			return getBranchingAncestorTokenNodeIds(firstAncestor);
+		}
+	}
+
+//	public static void addNullTokenToLeafNode(INode leafNode, IGraph iGraph) throws GrafException {
+//		Collection<String> branchingAncestorTokenNodeIds = getBranchingAncestorTokenNodeIds(leafNode);
+//		String nextTokenNodeId = branchingAncestorTokenNodeIds.iterator().next();
+//		INode nextTokenNode = iGraph.findNode(nextTokenNodeId);
+//		int[] nextTokenNodeOffsets = getNodeOffsets(nextTokenNode);
+//	}
+	
 }
 
 

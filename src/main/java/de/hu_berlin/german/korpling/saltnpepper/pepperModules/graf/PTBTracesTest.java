@@ -6,8 +6,11 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -62,7 +65,9 @@ public class PTBTracesTest {
 				if (GrafReader.isLeafNode(node)) {
 					System.out.println("leaf node: "+node.getId());
 					INode rootNode = GrafReader.getTreeRootNodeFromLeafNode(node, graph);
-					System.out.println("\troot node: "+rootNode.getId());
+					System.out.println("\troot node: "+rootNode.getId()+" has these tokens:");
+					Collection<String> branchingAncestorTokenNodes = GrafReader.getBranchingAncestorTokenNodeIds(node);
+					System.out.println("\t\t"+branchingAncestorTokenNodes);
 				}
 			}
 		}
