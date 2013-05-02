@@ -393,6 +393,19 @@ public class GrafReader {
 		sDataSourceSequence.setSSequentialDS(sTextualDS);
 		return docGraph.getSTokensBySequence(sDataSourceSequence);
 	}
+
+	/** returns the STokens that represent the primary text within the 
+	 *  given offsets. */
+	public static EList<SToken> getSTokensFromOffsets(IGraph iGraph, int onset,
+			int offset,	SDocumentGraph docGraph) throws GrafException {
+		STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
+		SDataSourceSequence sDataSourceSequence = SaltFactory.eINSTANCE.createSDataSourceSequence();
+		sDataSourceSequence.setSStart(onset);
+		sDataSourceSequence.setSEnd(offset);
+		sDataSourceSequence.setSSequentialDS(sTextualDS);
+		return docGraph.getSTokensBySequence(sDataSourceSequence);
+	}
+
 	
 	/** returns true iff an INode has no outgoing edges and does not link to
 	 *  any IRegions. */

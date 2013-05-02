@@ -504,8 +504,7 @@ public class SaltWriter {
 					// they represent
 					if (connectedSyntaxINode.getOutEdges().size() == 0) {
 						List<ILink> links = connectedSyntaxINode.getLinks();
-						if (links.size() > 0) { // ignore nodes that don't have links,
-												// i.e. "Trace" nodes etc.
+						if (links.size() > 0) {
 							for (ILink link : links) {
 								Iterable<IRegion> regions = link.regions();
 								for (IRegion region : regions) {
@@ -517,6 +516,32 @@ public class SaltWriter {
 								}
 							}							
 						}
+//						else { // handle syntax nodes that neither have outedges nor links,
+//							    // i.e. trace nodes etc.
+//								// FIXME: refactor, asap!
+//							System.out.println("DEBUG: this node is broken:");
+//							GrafGraphInfo.printNodeInfo(connectedSyntaxINode, syntaxIGraph);
+//							Collection<String> nextTokenNodeIds = GrafReader.getBranchingAncestorTokenNodeIds(connectedSyntaxINode);
+//							String nextTokenNodeId = nextTokenNodeIds.iterator().next();
+//							INode nextTokenNode = syntaxIGraph.findNode(nextTokenNodeId);
+//							ILink firstLink = nextTokenNode.getLinks().get(0);
+//							IRegion firstRegion = firstLink.getRegions().get(0);
+//							String regionId = firstRegion.getId();
+//							int[] nextTokenNodeOffsets = GrafReader.getNodeOffsets(nextTokenNode);
+//							STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
+//							EList<SLayer> sLayers = docGraph.getSDocument().getSLayers();
+//							String annoType = GrafReader.convertElementIdToAnnotationType(regionId);
+//							SLayer sLayer = docGraph.getSLayer(annoType);
+//							
+//							String nullTokenRegionId = "null_token"+regionId;
+//							String nullTokenId = addTokenToDocument(nextTokenNodeOffsets[0], 
+//									nextTokenNodeOffsets[0], sTextualDS, 
+//									docGraph.getSDocument(), sLayer, nullTokenRegionId);
+//							
+//							SToken nullToken = GrafReader.getSTokensFromOffsets(syntaxIGraph, 
+//									nextTokenNodeOffsets[0], nextTokenNodeOffsets[0], docGraph).get(0);
+//							docGraph.addSNode(sourceSStructure, nullToken, domRel);
+//						}
 					}
 				
 					else { // handle dominated nodes with outgoing edges
