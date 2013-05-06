@@ -41,8 +41,7 @@ public class GrafGraphInfo {
 	}
 	
 	
-	/**	all annotation spaces in masc 3.0.0 seem to be empty 
-	 *  FIXME: this isn't true, but I can't find them! */
+	/**	prints all annotation spaces used in an IGraph */
 	public static void printAnnotationSpacesInfo(IGraph graph) {
 		Collection<IAnnotationSpace> annoSpaces = graph.getAnnotationSpaces();
 		int annoSpacesSize = annoSpaces.size();

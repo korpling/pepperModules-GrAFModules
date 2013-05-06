@@ -13,6 +13,7 @@ import org.eclipse.emf.common.util.EList;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IAnchor;
 import org.xces.graf.api.IAnnotation;
+import org.xces.graf.api.IAnnotationSpace;
 import org.xces.graf.api.IFeature;
 import org.xces.graf.api.IGraph;
 import org.xces.graf.api.ILink;
@@ -47,7 +48,7 @@ public class SaltWriter {
 	 *  ANNIS2 can't handle multiple primary text segmentations correctly, so
 	 *  we have to work around this. */
 	public enum IRegionHandlingMethod {
-		WORD_SEGMENTATION_ONLY, APPROXIMATE_MATCH, VIRTUAL_TOKEN_LEVEL
+		WORD_SEGMENTATION_ONLY, APPROXIMATE_MATCH, ALL_TOKEN_LEVELS
 	}
 	
 	/** A Salt dominance relation */
@@ -181,9 +182,16 @@ public class SaltWriter {
 			case APPROXIMATE_MATCH:
 				throw new UnsupportedOperationException("Not implemented yet.");
 				
-			case VIRTUAL_TOKEN_LEVEL: 
-				throw new UnsupportedOperationException("Not implemented yet." 
-						+ " Functionality should be supported in ANNIS3.");
+			case ALL_TOKEN_LEVELS:
+				Collection<IAnnotationSpace> annotationSpaces = iDocumentGraph.getAnnotationSpaces();
+				List<String> annoTypeNames = new ArrayList<String>();
+				for (IAnnotationSpace annoSpace : annotationSpaces) {
+					annoTypeNames.add("f."+annoSpace.getType());
+				}
+				String[] annoTypeArray = annoTypeNames.toArray(new String[annoTypeNames.size()]);
+				return addIRegionsToSDocument(iDocumentGraph, sDocument, annoTypeArray);
+//				throw new UnsupportedOperationException("Not implemented yet." 
+//						+ " Functionality should be supported in ANNIS3.");
 		}
 		return null;
 	}

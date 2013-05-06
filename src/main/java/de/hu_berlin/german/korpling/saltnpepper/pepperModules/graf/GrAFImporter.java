@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -31,6 +32,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 import org.xces.graf.api.GrafException;
+import org.xces.graf.api.IAnnotationSpace;
 import org.xces.graf.api.IGraph;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
@@ -210,9 +212,12 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 																					SDocument sDocument)
 																					throws GrafException {
 		HashMap<String, String> regionIdsToTokenIdsMap; 
+//		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
+//													sDocument, 
+//													"ALL_TOKEN_LEVELS");
 		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
-													sDocument, 
-													"WORD_SEGMENTATION_ONLY");
+				sDocument, 
+				"WORD_SEGMENTATION_ONLY");		
 		return SaltWriter.addSSpansToSDocument(iGraph, sDocument, regionIdsToTokenIdsMap);
 	}
 	
@@ -239,9 +244,12 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
 
 					String sDocName = sDocument.getSName();
+					System.out.println("filling SDocument "+sDocName+" ...");
 					String docHeaderPath = docIdDocHeaderMap.get(sDocName);
 
 					IGraph iGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath);
+					GrafGraphInfo.printGraphInfo(iGraph);
+					GrafGraphInfo.printAnnotationSpacesInfo(iGraph);
 
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
@@ -249,6 +257,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap;
 					
 					iNodeIDsToSTokenSSpanIdsMap = addGrafStructureToSDocument(iGraph, sDocument);
+					Set<String> keySet = iNodeIDsToSTokenSSpanIdsMap.keySet();
 					
 					Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps; 
 					tokenAndSpanMaps = SaltWriter.addAnnotationsToSDocument(iGraph, 
@@ -259,12 +268,12 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					
 					// adds syntax structures from the IGraph's syntax annotation
 					// level to SDocument
-//					IGraph syntaxIGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath, ((GrAFImporterProperties)this.getProperties()).getSyntaxLayer());
-//					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
-//					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
-//											iNodeIDsToSTokenSSpanIdsMap, 
-//											tokenAndSpanMaps, 
-//											sDocument);
+					IGraph syntaxIGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath, ((GrAFImporterProperties)this.getProperties()).getSyntaxLayer());
+					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
+					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
+											iNodeIDsToSTokenSSpanIdsMap, 
+											tokenAndSpanMaps, 
+											sDocument);
 					
 				}			
 				catch (Exception e) {
