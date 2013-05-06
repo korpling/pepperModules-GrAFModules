@@ -34,6 +34,7 @@ import org.osgi.service.component.annotations.Component;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IAnnotationSpace;
 import org.xces.graf.api.IGraph;
+import org.xces.graf.api.INode;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
@@ -248,8 +249,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String docHeaderPath = docIdDocHeaderMap.get(sDocName);
 
 					IGraph iGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath);
-					GrafGraphInfo.printGraphInfo(iGraph);
-					GrafGraphInfo.printAnnotationSpacesInfo(iGraph);
+//					GrafGraphInfo.printGraphInfo(iGraph);
+//					GrafGraphInfo.printAnnotationSpacesInfo(iGraph);
 
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
@@ -257,7 +258,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap;
 					
 					iNodeIDsToSTokenSSpanIdsMap = addGrafStructureToSDocument(iGraph, sDocument);
-					Set<String> keySet = iNodeIDsToSTokenSSpanIdsMap.keySet();
+//					Set<String> keySet = iNodeIDsToSTokenSSpanIdsMap.keySet();
 					
 					Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps; 
 					tokenAndSpanMaps = SaltWriter.addAnnotationsToSDocument(iGraph, 
@@ -269,7 +270,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					// adds syntax structures from the IGraph's syntax annotation
 					// level to SDocument
 					IGraph syntaxIGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath, ((GrAFImporterProperties)this.getProperties()).getSyntaxLayer());
-					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
+					
+//					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
 					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
 											iNodeIDsToSTokenSSpanIdsMap, 
 											tokenAndSpanMaps, 

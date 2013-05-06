@@ -411,6 +411,23 @@ public class SaltWriter {
 									sSpan);
 		}
 	}
+	
+	/** FIXME: this is a copy of addAnnotationsToSSpan. both methods should be merged.*/
+	public static void addAnnotationsToSNode(INode annotationINode, SNode sNode) {
+		String annotationId = annotationINode.getId();
+		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
+		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
+//		String annoLabel = iAnnotation.getLabel();
+		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
+
+		for (IFeature feature : annoFeatures) {
+				addAnnotationToNode(feature.getName(), 
+									annotationId, 
+									feature.getStringValue(), 
+									annoNamespace, 
+									sNode);
+		}
+	}	
 
 
 	/** adds an annotation (e.g. POS tag, named entity type) to an 
@@ -450,6 +467,9 @@ public class SaltWriter {
 				// for "tok" nodes.
 				SStructure syntaxSStructure = SaltFactory.eINSTANCE.createSStructure();
 				syntaxSStructure.setSName(syntaxINode.getId());
+				addAnnotationsToSNode(syntaxINode, syntaxSStructure);
+					
+//				syntaxSStructure.createSAnnotation(arg0, arg1, arg2)
 				iNodeIdToSStructureMap.put(syntaxINode.getId(), syntaxSStructure);
 			}
 		}
