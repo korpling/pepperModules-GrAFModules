@@ -55,6 +55,14 @@
     </repository>
   </distributionManagement>
   <dependencies>
+  
+  <dependency>
+      <groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
+      <artifactId>salt-saltCommon</artifactId>
+      <version>1.1.6</version>
+      <scope>compile</scope>
+    </dependency>
+    
   	<dependency>
 		<groupId>org.tc37sc4.graf</groupId>
 		<artifactId>graf-api</artifactId>

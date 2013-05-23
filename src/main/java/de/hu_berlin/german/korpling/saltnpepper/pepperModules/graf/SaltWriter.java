@@ -378,12 +378,12 @@ public class SaltWriter {
 			if (mappedElementPair.getKey().equals("SToken")) {
 				String sTokenId = mappedElementPair.getValue();
 				SToken sToken = tokenIdToTokenMap.get(sTokenId);
-				addAnnotationsToSToken(annotationINode, sToken);
+				addAnnotationsToSNode(annotationINode, sToken);
 			}
 			else if (mappedElementPair.getKey().equals("SSpan")) {
 				String sSpanId = mappedElementPair.getValue();
 				SSpan sSpan = spanIdToSpanMap.get(sSpanId);
-				addAnnotationsToSSpan(annotationINode, sSpan);
+				addAnnotationsToSNode(annotationINode, sSpan);
 			}
 			else {
 				throw new NullPointerException("I can't map from an INode to an "
@@ -393,26 +393,8 @@ public class SaltWriter {
 		return Pair.of(tokenIdToTokenMap, spanIdToSpanMap) ;
 	}
 
-
-	/** adds an annotation (e.g. POS tag or named entity type) to an SSpan
-	 *  (which represents several STokens). */
-	public static void addAnnotationsToSSpan(INode annotationINode, SSpan sSpan) {
-		String annotationId = annotationINode.getId();
-		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
-		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
-//		String annoLabel = iAnnotation.getLabel();
-		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
-
-		for (IFeature feature : annoFeatures) {
-				addAnnotationToNode(feature.getName(), 
-									annotationId, 
-									feature.getStringValue(), 
-									annoNamespace, 
-									sSpan);
-		}
-	}
 	
-	/** FIXME: this is a copy of addAnnotationsToSSpan. both methods should be merged.*/
+	/** adds an annotation to an SNode, SToken or SSpan.*/
 	public static void addAnnotationsToSNode(INode annotationINode, SNode sNode) {
 		String annotationId = annotationINode.getId();
 		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
@@ -429,26 +411,6 @@ public class SaltWriter {
 		}
 	}	
 
-
-	/** adds an annotation (e.g. POS tag, named entity type) to an 
-	 *  SToken */
-	public static void addAnnotationsToSToken(INode annotationINode,
-											  SToken sToken) {
-		
-		String annotationId = annotationINode.getId();
-		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
-		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
-//		String annoLabel = iAnnotation.getLabel();
-		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
-
-		for (IFeature feature : annoFeatures) {
-				addAnnotationToNode(feature.getName(), 
-									annotationId, 
-									feature.getStringValue(), 
-									annoNamespace, 
-									sToken);
-		}
-	}
 
 	/** creates a new SStructure for each INode in an f.ptb IGraph, each of 
 	 *  which represent a syntax node (S, NP etc.) and returns a map from
