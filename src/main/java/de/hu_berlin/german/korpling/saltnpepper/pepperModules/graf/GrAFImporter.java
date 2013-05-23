@@ -118,6 +118,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	Map<String, String> docIdDocHeaderMap= null;
 	private GrafResourceHeader rscHeader= null;
 	
+	/** returns a list of paths to all files with the given extension that
+	 *  exist in a directory (incl. subdirectories) */
 	public static List<String> recursiveListDir(String path, String fileNameEndsWith){
 		List<String> fnamesList = recursiveListDir(path);
 		List<String> filteredFnamesList = new ArrayList<String>();
@@ -129,6 +131,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		return filteredFnamesList;
 	}	
 	
+	/** returns a list of paths to all files that
+	 *  exist in a directory (incl. subdirectories) */
 	public static List<String> recursiveListDir(String path){
 		  List<String> fnamesList = new ArrayList<String>();	   
 		  File[] faFiles = new File(path).listFiles();
