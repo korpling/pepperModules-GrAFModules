@@ -47,6 +47,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
+import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 /**
  * This is a sample PepperImporter, which can be used for creating individual Importers for the 
@@ -259,14 +260,14 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
 					
-					HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap;
+					HashMap<String, Pair<String, String>> iNodeIdToSNodeIdMap;
 					
-					iNodeIDsToSTokenSSpanIdsMap = addGrafStructureToSDocument(iGraph, sDocument);
+					iNodeIdToSNodeIdMap = addGrafStructureToSDocument(iGraph, sDocument);
 //					Set<String> keySet = iNodeIDsToSTokenSSpanIdsMap.keySet();
 					
-					Pair<HashMap<String, SToken>, HashMap<String, SSpan>> tokenAndSpanMaps; 
-					tokenAndSpanMaps = SaltWriter.addAnnotationsToSDocument(iGraph, 
-																iNodeIDsToSTokenSSpanIdsMap, 
+					HashMap<String, SNode> sNodeIdToSNodeMap; 
+					sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(iGraph, 
+																iNodeIdToSNodeIdMap, 
 																sDocument);
 					
 					
@@ -277,8 +278,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					
 //					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
 					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
-											iNodeIDsToSTokenSSpanIdsMap, 
-											tokenAndSpanMaps, 
+											iNodeIdToSNodeIdMap, 
+											sNodeIdToSNodeMap, 
 											sDocument);
 					
 				}			
