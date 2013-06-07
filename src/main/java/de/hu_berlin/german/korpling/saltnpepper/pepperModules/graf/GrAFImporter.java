@@ -197,10 +197,10 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	/** Adds all IRegions from an IGraph to an SDocument and returns a map
 	 *  from INode IDs to SNode (or: SToken/SSpan IDs).
 	 *  
-	 *  Generates a mapping from IRegions to STokens and uses it to generate
-	 *  a mapping from INode IDs to SToken IDs (if the INode only covers one 
-	 *  IRegion) OR from INode IDs to SSpan IDs (if the INode covers more than
-	 *  one IRegion).
+	 *  First, the method generates a mapping from IRegions to STokens and 
+	 *  uses it to build a map from INode IDs to SToken IDs 
+	 *  (if the INode only covers one IRegion) OR from INode IDs to SSpan IDs 
+	 *  (if the INode covers more than one IRegion).
 	 *  
 	 *  An SSpan represents a number of consecutive STokens. In GrAF terminology
 	 *  an SSpan is equivalent to an INode that links to more than one IRegion 
@@ -213,11 +213,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 																					throws GrafException {
 		HashMap<String, String> regionIdsToTokenIdsMap; 
 		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
-													sDocument, 
-													"ALL_TOKEN_LEVELS");
-//		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
-//				sDocument, 
-//				"WORD_SEGMENTATION_ONLY");		
+													sDocument);
 		return SaltWriter.addSSpansToSDocument(iGraph, sDocument, regionIdsToTokenIdsMap);
 	}
 	

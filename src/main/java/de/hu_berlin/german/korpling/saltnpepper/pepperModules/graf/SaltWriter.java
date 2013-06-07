@@ -126,78 +126,38 @@ public class SaltWriter {
 	}
 
 
-	/** add regions to a document. regions are annotations that work directly 
-	 *  on the primary text, e.g. word segmentation and sentence boundaries. 
-	 *	
-	 *  FIXME: add method variant that adds ALL IRegions regardless of annotation type 
-	 *  
-	 *  @param annoTypes - only IRegions belonging to these annotation types will be added
-	 *  @return a map with IRegion IDs as keys and SToken IDs as values*/
-	public static HashMap<String,String> addIRegionsToSDocument(IGraph iDocumentGraph, 
-											 SDocument sDocument, 
-											 String[] annoTypes) throws GrafException {
-
-		STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
-		HashMap<String, SLayer> annoTypeSlayerMap = new HashMap<String, SLayer>();
-		
-		for (String annoType : annoTypes) {
-			SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
-			annoLayer.setSName(annoType);
-			annoTypeSlayerMap.put(annoType, annoLayer);
-			sDocument.getSDocumentGraph().addSLayer(annoLayer);
-		}
-		
-		HashMap<String, String> regionIdToTokenIdMap = new HashMap<String, String>();
-		for (IRegion iRegion : GrafReader.getRegionsOfAnnoTypes(iDocumentGraph, annoTypes)) {
-			String regionId = iRegion.getId();
-			String tokenId = addIRegionToSDocument(iRegion, sDocument, sTextualDS, annoTypeSlayerMap);
-			regionIdToTokenIdMap.put(regionId, tokenId);
-		}
-		return regionIdToTokenIdMap;
-	}
-
 	/** add ALL IRegions to an SDocument and returns a map from IRegion IDs
 	 *  (e.g. 'seg-r316') to their corresponding STokenId
 	 *  (e.g. 'salt:/MASC/MASC1-00046/MASC1-00046_graph#seg-r316').
-	 *  
-	 *  FIXME: implement handling of multiple tokenizations of the same primary
-	 *  text when virtual token levels become available in ANNIS (cf. ANNIS3).
 	 *  
 	 *  @param iDocumentGraph - the IGraph that contains all the IRegions to be added
 	 *  @param sDocument - the SDocument that the regions will be added to (as STokens)
 	 *  @return a map from IRegion ID to SToken ID  */
 	public static HashMap<String,String> addAllIRegionsToSDocument(IGraph iDocumentGraph, 
-			 													   SDocument sDocument,
-			 													   String regionHandlingMethod) 
+			 													   SDocument sDocument) 
 			 													   throws GrafException {
 
-		switch (IRegionHandlingMethod.valueOf(regionHandlingMethod)) 
-		{
-			case WORD_SEGMENTATION_ONLY:
-				// FIXME: we only want to get the IRegions from "f.seg", but
-				// due to a confirmed bug in graf1.2.0-snapshot, we'll at least
-				// have to import one other annotation level. I chose "f.penn"
-				// because it doesn't contain any IRegions, so we should be save.
-				return addIRegionsToSDocument(iDocumentGraph, sDocument, new String[] {"f.seg", "f.penn"});
+		STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
+		Collection<IAnnotationSpace> annotationSpaces = iDocumentGraph.getAnnotationSpaces();
 				
-			case APPROXIMATE_MATCH:
-				throw new UnsupportedOperationException("Not implemented yet.");
-				
-			case ALL_TOKEN_LEVELS:
-				Collection<IAnnotationSpace> annotationSpaces = iDocumentGraph.getAnnotationSpaces();
-				List<String> annoTypeNames = new ArrayList<String>();
-				for (IAnnotationSpace annoSpace : annotationSpaces) {
-					annoTypeNames.add("f."+annoSpace.getType());
-				}
-				String[] annoTypeArray = annoTypeNames.toArray(new String[annoTypeNames.size()]);
-				return addIRegionsToSDocument(iDocumentGraph, sDocument, annoTypeArray);
-//				throw new UnsupportedOperationException("Not implemented yet." 
-//						+ " Functionality should be supported in ANNIS3.");
+		HashMap<String, SLayer> annoTypeSlayerMap = new HashMap<String, SLayer>();
+		for (IAnnotationSpace annoSpace : iDocumentGraph.getAnnotationSpaces()) {
+			String annoSpaceName = annoSpace.getName();
+			SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
+			annoLayer.setSName(annoSpaceName);
+			annoTypeSlayerMap.put(annoSpaceName, annoLayer);
+			sDocument.getSDocumentGraph().addSLayer(annoLayer);
 		}
-		return null;
+			
+		HashMap<String, String> regionIdToTokenIdMap = new HashMap<String, String>();
+		for (IRegion iRegion : iDocumentGraph.getRegions()) {
+			String regionId = iRegion.getId();
+			String tokenId = addIRegionToSDocument(iRegion, sDocument, sTextualDS, annoTypeSlayerMap);
+			regionIdToTokenIdMap.put(regionId, tokenId);
+		}		
+		return regionIdToTokenIdMap;
 	}
-	
-	
+
 
 	/** takes a list of IRegions and returns the corresponding STokens*/
 	public static List<SToken> mapRegionsToTokens(List<IRegion> regions, 
