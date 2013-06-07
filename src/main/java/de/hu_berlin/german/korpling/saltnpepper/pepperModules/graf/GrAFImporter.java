@@ -212,12 +212,12 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 																					SDocument sDocument)
 																					throws GrafException {
 		HashMap<String, String> regionIdsToTokenIdsMap; 
-//		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
-//													sDocument, 
-//													"ALL_TOKEN_LEVELS");
 		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
-				sDocument, 
-				"WORD_SEGMENTATION_ONLY");		
+													sDocument, 
+													"ALL_TOKEN_LEVELS");
+//		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
+//				sDocument, 
+//				"WORD_SEGMENTATION_ONLY");		
 		return SaltWriter.addSSpansToSDocument(iGraph, sDocument, regionIdsToTokenIdsMap);
 	}
 	
@@ -258,15 +258,10 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
 					
-					HashMap<String, String> iNodeIdToSNodeIdMap = addGrafStructureToSDocument(iGraph, sDocument);
-//					Set<String> keySet = iNodeIDsToSTokenSSpanIdsMap.keySet();
-					
-					HashMap<String, SNode> sNodeIdToSNodeMap; 
-					sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(iGraph, 
-																iNodeIdToSNodeIdMap, 
-																sDocument);
-					
-					
+					HashMap<String, String> iNodeIdToSNodeIdMap = addGrafStructureToSDocument(iGraph, sDocument);		
+					HashMap<String, SNode> sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(iGraph, 
+																	iNodeIdToSNodeIdMap, 
+																	sDocument);
 					
 					// adds syntax structures from the IGraph's syntax annotation
 					// level to SDocument
@@ -278,9 +273,16 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 											sNodeIdToSNodeMap, 
 											sDocument);
 					
-					for (String iNodeId : iNodeIdToSNodeIdMap.keySet()) {
-						System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
+//					for (String iNodeId : iNodeIdToSNodeIdMap.keySet()) {
+//						System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
+//					}
+					for (INode iNode : syntaxIGraph.getNodes()) {
+						if (GrafReader.isLeafNode(iNode)) {
+							String iNodeId = iNode.getId();
+							System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
+						}
 					}
+				
 				}			
 				catch (Exception e) {
 					new GrAFImporterException("Cannot import SDocument '"+sElementId+"' ",e);

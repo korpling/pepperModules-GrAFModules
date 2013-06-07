@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -468,13 +469,6 @@ public class GrafReader {
 		}
 	}
 
-//	public static void addNullTokenToLeafNode(INode leafNode, IGraph iGraph) throws GrafException {
-//		Collection<String> branchingAncestorTokenNodeIds = getBranchingAncestorTokenNodeIds(leafNode);
-//		String nextTokenNodeId = branchingAncestorTokenNodeIds.iterator().next();
-//		INode nextTokenNode = iGraph.findNode(nextTokenNodeId);
-//		int[] nextTokenNodeOffsets = getNodeOffsets(nextTokenNode);
-//	}
-	
 }
 
 

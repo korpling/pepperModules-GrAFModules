@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -44,7 +45,7 @@ public class PTBTracesTest {
 	 */
 	public static void main(String[] args) throws XPathExpressionException, GrafException, SAXException, IOException {
 		// TODO Auto-generated method stub
-		String corpusPath = "/home/arne/korpora/tiny-masc/";
+		String corpusPath = "/home/zbigniew/korpora/masc_one/";
 		File headerFile = new File(corpusPath, "resource-header.xml");
 		ResourceHeader rscHeader = new ResourceHeader(headerFile);
 
@@ -61,6 +62,7 @@ public class PTBTracesTest {
 
 		for (String docHeaderPath : desiredDocHeaderPaths) {
 			IGraph graph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath);
+			GrafGraphInfo.printAnnotationSpacesInfo(graph);
 			for (INode node : graph.getNodes()) {
 				if (GrafReader.isLeafNode(node)) {
 					System.out.println("leaf node: "+node.getId());
@@ -73,6 +75,16 @@ public class PTBTracesTest {
 		}
 
 	}
+	
+//	/** maps a leaf INode to its SNode counterpart and links the SNode to a null token.*/
+//	public static void addNullTokenToLeafNode(INode leafNode, IGraph iGraph, 
+//			HashMap<String,String> iNodeIdToSNodeIdMap) throws GrafException {
+//		Collection<String> branchingAncestorTokenNodeIds = GrafReader.getBranchingAncestorTokenNodeIds(leafNode);
+//		String nextTokenNodeId = branchingAncestorTokenNodeIds.iterator().next();
+//		INode nextTokenNode = iGraph.findNode(nextTokenNodeId);
+//		int[] nextTokenNodeOffsets = GrafReader.getNodeOffsets(nextTokenNode);
+//	}
+
 }
 
 
