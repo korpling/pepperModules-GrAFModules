@@ -194,27 +194,21 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	}
 	
 	
-	/** reads IRegions from an IGraph, maps them to STokens and saves them in
-	 *  an SDocument. The (IRegion -> SToken) mapping is used to generate a
-	 *  mapping from INodes to STokens (if the INode only covers one IRegion)
-	 *  or a mapping from INodes to SSpans (if the INode covers more than one
-	 *  IRegion).
+	/** Adds all IRegions from an IGraph to an SDocument and returns a map
+	 *  from INode IDs to SNode (or: SToken/SSpan IDs).
 	 *  
-	 *  Returns a map from INode IDs (e.g. 'ptb-n00409') to SSpans and STokens,
-	 *  encoded as Pair<String "SToken", String STokenID>
-	 *  (e.g. <"SToken", "salt:/MASC/MASC1-00046/MASC1-00046_graph#seg-r361">)
-	 *  or Pair<"SSpan", SSpanID>
-	 *  (e.g. <"SSpan", "salt:/MASC/MASC1-00046/MASC1-00046_graph#sSpan340>").
+	 *  Generates a mapping from IRegions to STokens and uses it to generate
+	 *  a mapping from INode IDs to SToken IDs (if the INode only covers one 
+	 *  IRegion) OR from INode IDs to SSpan IDs (if the INode covers more than
+	 *  one IRegion).
 	 *  
 	 *  An SSpan represents a number of consecutive STokens. In GrAF terminology
 	 *  an SSpan is equivalent to an INode that links to more than one IRegion 
 	 *  or an INode that is connected via one or more outgoing edges to INodes 
 	 *  that do so.
 	 *  
-	 *  @return a map from INode IDs to a Pair<String, String>, where the left 
-	 *  	string is the class name ("SToken" or "SSpan") and the right string
-	 *  	is the SToken/SSpan ID. */
-	public static HashMap<String, Pair<String, String>> addGrafStructureToSDocument(IGraph iGraph, 
+	 *  @return a map from INode IDs to a SNode (here: SToken/SSpan) IDs */
+	public static HashMap<String, String> addGrafStructureToSDocument(IGraph iGraph, 
 																					SDocument sDocument)
 																					throws GrafException {
 		HashMap<String, String> regionIdsToTokenIdsMap; 
@@ -264,9 +258,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
 					
-					HashMap<String, Pair<String, String>> iNodeIdToSNodeIdMap;
-					
-					iNodeIdToSNodeIdMap = addGrafStructureToSDocument(iGraph, sDocument);
+					HashMap<String, String> iNodeIdToSNodeIdMap = addGrafStructureToSDocument(iGraph, sDocument);
 //					Set<String> keySet = iNodeIDsToSTokenSSpanIdsMap.keySet();
 					
 					HashMap<String, SNode> sNodeIdToSNodeMap; 
@@ -286,6 +278,9 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 											sNodeIdToSNodeMap, 
 											sDocument);
 					
+					for (String iNodeId : iNodeIdToSNodeIdMap.keySet()) {
+						System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
+					}
 				}			
 				catch (Exception e) {
 					new GrAFImporterException("Cannot import SDocument '"+sElementId+"' ",e);

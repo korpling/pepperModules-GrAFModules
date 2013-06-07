@@ -222,32 +222,28 @@ public class SaltWriter {
 
 	
 	/** Adds all SSpans to an SDocument.
-	 *  Returns a map from INode IDs (e.g. 'ptb-n00409') to SSpans and STokens,
-	 *  encoded as Pair<String "SToken", String STokenID>
-	 *  (e.g. <"SToken", "salt:/MASC/MASC1-00046/MASC1-00046_graph#seg-r361">)
-	 *  or Pair<"SSpan", SSpanID>
-	 *  (e.g. <"SSpan", "salt:/MASC/MASC1-00046/MASC1-00046_graph#sSpan340>").
+	 *  Returns a map from INode IDs (e.g. 'ptb-n00409') to SNode (SSpan/SToken) IDs,
+	 *  e.g. "salt:/MASC/MASC1-00046/MASC1-00046_graph#seg-r361"
+	 *  or "salt:/MASC/MASC1-00046/MASC1-00046_graph#sSpan340>".
 	 *  
 	 *  An SSpan represents a number of consecutive STokens. In GrAF terminology
 	 *  an SSpan is equivalent to an INode that links to more than one IRegion 
 	 *  or an INode that is connected via one or more outgoing edges to INodes 
 	 *  that do so.
 	 *  
-	 *  @return a map from INode IDs to a Pair<String, String>, where the left 
-	 *  	string is the class name ("SToken" or "SSpan") and the right string
-	 *  	is the SToken/SSpan ID.
+	 *  @return a map from an INode ID to an SNode ID (or SToken/SSpan ID),
 	 *  	
-	 *  example from 20000424_nyt-NEW.*:
+	 *  example from MASC corpus - 20000424_nyt-NEW.*:
 	 *  ne-2 node (sex: male) --> OutEdge to two INodes from "f.penn": penn-n6, penn-n7
 	 *  		penn-n6 node (tony, NNP) --> link to IRegion seg-r11
 	 *  		penn-n7 node (hall, NNP) --> link to IRegion seg-r13
 	 */
-	public static HashMap<String, Pair<String, String>> addSSpansToSDocument(IGraph iDocumentGraph, 
+	public static HashMap<String, String> addSSpansToSDocument(IGraph iDocumentGraph, 
 												 SDocument sDocument,
 												 HashMap<String,String> regionIdsToTokenIdsMap) {
 
 		SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
-		HashMap<String, Pair<String, String>> iNodeIdsToSTokenSSpanIdsMap = new HashMap<String, Pair<String, String>>();
+		HashMap<String, String> iNodeIdsToSNodeIdsMap = new HashMap<String, String>();
 		
 		Collection<INode> iNodes = iDocumentGraph.getNodes();	
 		for (INode iNode : iNodes) {
@@ -256,7 +252,7 @@ public class SaltWriter {
 				String coveredIRegionId = iRegionsCoveredByINode.get(0).getId();
 				if (regionIdsToTokenIdsMap.containsKey(coveredIRegionId)) {
 					String coveredSTokenId = regionIdsToTokenIdsMap.get(coveredIRegionId);
-					iNodeIdsToSTokenSSpanIdsMap.put(iNode.getId(), Pair.of("SToken", coveredSTokenId));
+					iNodeIdsToSNodeIdsMap.put(iNode.getId(), coveredSTokenId);
 				}
 			}
 			else if (iRegionsCoveredByINode.size() > 1) {
@@ -267,10 +263,10 @@ public class SaltWriter {
 														sDocumentGraph);
 				List<SLayer> sLayers = SaltWriter.mapTokensToSLayers(tokens);
 				String sSpanId = addSSpanToSDocument(tokens, sDocument, sLayers);
-				iNodeIdsToSTokenSSpanIdsMap.put(iNode.getId(), Pair.of("SSpan", sSpanId));
+				iNodeIdsToSNodeIdsMap.put(iNode.getId(), sSpanId);
 			}
 		}
-		return iNodeIdsToSTokenSSpanIdsMap;		
+		return iNodeIdsToSNodeIdsMap;		
 	}
 
 	/** returns a list of IRegions that an INode covers (via links or 
@@ -356,7 +352,7 @@ public class SaltWriter {
 	 *  @return a map from SNode (or SToken/SSpan) IDs to SNodes (or STokens/SSpans) 
 	 * @throws GrafException */
 	public static HashMap<String,SNode> addAnnotationsToSDocument(IGraph iGraph, 
-							HashMap<String,Pair<String,String>> iNodeIdToSNodeIdMap, 
+							HashMap<String,String> iNodeIdToSNodeIdMap, 
 							SDocument sDocument) throws GrafException {
 		
 		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
@@ -371,9 +367,7 @@ public class SaltWriter {
 		
 		for (String iNodeId : iNodeIdToSNodeIdMap.keySet()) {
 			INode annotationINode = iGraph.findNode(iNodeId);
-			Pair<String, String> mappedElementPair = iNodeIdToSNodeIdMap.get(iNodeId);
-			
-			String sNodeId = mappedElementPair.getValue();
+			String sNodeId = iNodeIdToSNodeIdMap.get(iNodeId);
 			SNode sNode = nodeIdToNodeMap.get(sNodeId);
 			addAnnotationsToSNode(annotationINode, sNode);
 		}
@@ -454,14 +448,15 @@ public class SaltWriter {
 	
 	/** add a dominance relation from each syntax node (all nodes in a "f.ptb"
 	 *  IGraph that have outgoing edges) to the nodes they dominate.
-	 *  NOTE: "tok" nodes don't have outgoing edges but links to regions to 
+	 *  
+	 *  NOTE: token ("tok") nodes don't have outgoing edges but links to regions to 
 	 *  primary text segments (aka string onsets/offsets) 
 	 * @throws GrafException */
 	public static void addSyntaxNodeDomRelsToDocGraph(IGraph syntaxIGraph, 
 			SDocumentGraph docGraph, 
-			HashMap<String, SStructure> iNodeIdToSStructureMap,
-			HashMap<String, Pair<String, String>> iNodeIDsToSTokenSSpanIdsMap,
-			HashMap<String, SNode> sNodeIdToSNodeMap) throws GrafException {
+			HashMap<String,SStructure> iNodeIdToSStructureMap,
+			HashMap<String,String> iNodeIDsToSNodeIdsMap,
+			HashMap<String,SNode> sNodeIdToSNodeMap) throws GrafException {
 				
 		for (INode syntaxINode : syntaxIGraph.getNodes()) {
 			if (syntaxINode.getOutEdges().size() > 0) {
@@ -525,14 +520,13 @@ public class SaltWriter {
 							docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
 						} 
 						else {
-							Pair<String, String> dominatedSElement = iNodeIDsToSTokenSSpanIdsMap.get(dominatedINodeId);
-							String sElementId = dominatedSElement.getValue();
-							if (sNodeIdToSNodeMap.containsKey(sElementId)) {
-								SNode dominatedSNode = sNodeIdToSNodeMap.get(sElementId);
+							String dominatedSElementId = iNodeIDsToSNodeIdsMap.get(dominatedINodeId);
+							if (sNodeIdToSNodeMap.containsKey(dominatedSElementId)) {
+								SNode dominatedSNode = sNodeIdToSNodeMap.get(dominatedSElementId);
 								docGraph.addSNode(sourceSStructure, dominatedSNode, domRel);
 							}
 							else {
-								System.out.println("DEBUG: DAMN, can't find element '"+sElementId+"' in token map or span map!1!!");
+								System.out.println("DEBUG: DAMN, can't find element '"+dominatedSElementId+"' in token map or span map!1!!");
 							}
 						}						
 					}
@@ -550,7 +544,7 @@ public class SaltWriter {
 	 *  @param sNodeIdToSNodeMap - maps from SNode IDs to SNodes
 	 * @throws GrafException */
 	public static void addSyntaxToSDocument(IGraph syntaxIGraph,
-			HashMap<String, Pair<String, String>> iNodeIdToSNodeIdMap,
+			HashMap<String, String> iNodeIdToSNodeIdMap,
 			HashMap<String, SNode> sNodeIdToSNodeMap,
 			SDocument sDocument) throws GrafException {
 		
