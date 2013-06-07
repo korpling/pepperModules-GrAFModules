@@ -54,30 +54,31 @@ public class SaltWriter {
 	/** A Salt dominance relation */
 	public static STYPE_NAME domRel = STYPE_NAME.SDOMINANCE_RELATION;
 	
-	/** adds an annotation to an SNode or its subclasses, e.g. SToken or SSpan.
+	
+	/** low level method to add an annotation to an SNode (or SToken/SSpan).
 	 *  @param sAnnotationName - the name that this type of annotation shall 
 	 *  	   have in SALT, e.g. 'POS' or 'Lemma'
 	 *  @param sAnnotationId - the ID of the annotation node, e.g. 'penn-n23'
 	 *  @param sAnnotationValue - the value / content of the annotation, e.g. 'NNP'
 	 *  @param sAnnotationNamespace - the namespace of the annotation, e.g. 'xces' or 'fn'
-	 *  @param sNode - the element to be annotated, e.g. SToken or SSpan */
+	 *  @param sNode - the element to be annotated, e.g. an SNode 
+	 *  	(or SToken/SSpan) instance*/
 	public static void addAnnotationToNode(String sAnnotationName,
 										   String sAnnotationId,
 										   String sAnnotationValue,
 										   String sAnnotationNamespace,
 										   SNode sNode) {
-		SAnnotation sAnno = SaltFactory.eINSTANCE.createSAnnotation();
-		sAnno.setSName(sAnnotationName);
-		sAnno.setSValue(sAnnotationValue);
-		sAnno.setSNS(sAnnotationNamespace);
-		
 		HashSet<String> existingAnnotationSNames = new HashSet<String>();	
 		for (SAnnotation existingAnno : sNode.getSAnnotations()) {
 			existingAnnotationSNames.add(existingAnno.getSName());
 		}
 		
-		// don't add annotations that already exist
+		// only add annotations that don't exist yet
 		if (!existingAnnotationSNames.contains(sAnnotationName)) {
+			SAnnotation sAnno = SaltFactory.eINSTANCE.createSAnnotation();
+			sAnno.setSName(sAnnotationName);
+			sAnno.setSValue(sAnnotationValue);
+			sAnno.setSNS(sAnnotationNamespace);
 			sNode.addSAnnotation(sAnno); 
 		}
 	}
@@ -350,7 +351,7 @@ public class SaltWriter {
 	/** adds all annotations to an SDocument. 
 	 *  @param iGraph - the IGraph that contains all the annotations to be added
 	 *  @param iNodeIdToSNodeIdMap - a map from an INode ID to the ID 
-	 *  	of an SToken or SSpan which it annotates
+	 *  	of an SNode (or SToken/SSpan) which it annotates
 	 *  @param sDocument - the Salt document to which the annotations shall be added
 	 *  @return a map from SNode (or SToken/SSpan) IDs to SNodes (or STokens/SSpans) 
 	 * @throws GrafException */
@@ -376,18 +377,17 @@ public class SaltWriter {
 			SNode sNode = nodeIdToNodeMap.get(sNodeId);
 			addAnnotationsToSNode(annotationINode, sNode);
 		}
-		return nodeIdToNodeMap ;
+		return nodeIdToNodeMap;
 	}
 
 	
-	/** adds an annotation to an SNode, SToken or SSpan.*/
+	/** reads all annotations from an INode and adds them to the given 
+	 *  SNode (or SToken/SSpan).*/
 	public static void addAnnotationsToSNode(INode annotationINode, SNode sNode) {
 		String annotationId = annotationINode.getId();
 		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns default annotation
 		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
-//		String annoLabel = iAnnotation.getLabel();
 		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
-
 		for (IFeature feature : annoFeatures) {
 				addAnnotationToNode(feature.getName(), 
 									annotationId, 
@@ -398,12 +398,14 @@ public class SaltWriter {
 	}	
 
 
-	/** creates a new SStructure for each INode in an f.ptb IGraph, each of 
-	 *  which represent a syntax node (S, NP etc.) and returns a map from
-	 *  INode IDs to the corresponding SStructure
+	/** Creates a new SStructure for each INode in an f.ptb IGraph. Each
+	 *  SStructure represents a syntax node (S, NP etc.) and is annotated accordingly.
+	 *  Returns a map from INode IDs to the corresponding SStructure.
 	 *  
-	 * @param syntaxIGraph - an IGraph that only contains the "f.ptb" 
-	 *  	annotation type (or similar) */
+	 * 	@param syntaxIGraph - an IGraph that only contains the "f.ptb" 
+	 *  	annotation type (or similar) 
+	 * 	@return iNodeIdToSStructureMap - a map from INode IDs to the SStructures
+	 * 		they represent*/
 	public static HashMap<String, SStructure> createSyntaxINodeSStructures(IGraph syntaxIGraph) {
 		// map INodes to SSTructures
 		HashMap<String, SStructure> iNodeIdToSStructureMap = new HashMap<String, SStructure>();
@@ -412,7 +414,7 @@ public class SaltWriter {
 			if (syntaxINode.getOutEdges().size() > 0) {
 				// create an SStructure for each syntax node, i.e. nodes that 
 				// are labeled with 'S', 'NP' etc. but don't create SStructures
-				// for "tok" nodes.
+				// for leaf nodes (here: tokens).
 				SStructure syntaxSStructure = SaltFactory.eINSTANCE.createSStructure();
 				syntaxSStructure.setSName(syntaxINode.getId());
 				addAnnotationsToSNode(syntaxINode, syntaxSStructure);
@@ -539,8 +541,13 @@ public class SaltWriter {
 		}		
 	}
 	
-	/** @param syntaxIGraph - an IGraph that only contains the "f.ptb" 
-	 *  	annotation type (or similar) 
+	/** reads the syntax trees from an IGraph (which must only contain the 
+	 *  syntax annotation type, e.g. "f.ptb") and adds them to the corresponding
+	 *  SDocument 
+	 * @param syntaxIGraph - an IGraph that only contains the "f.ptb" 
+	 *  	annotation type (or similar)
+	 *  @param iNodeIdToSNodeIdMap - maps from INode IDs (GrAF) to SNode IDs (Salt)
+	 *  @param sNodeIdToSNodeMap - maps from SNode IDs to SNodes
 	 * @throws GrafException */
 	public static void addSyntaxToSDocument(IGraph syntaxIGraph,
 			HashMap<String, Pair<String, String>> iNodeIdToSNodeIdMap,
@@ -557,6 +564,8 @@ public class SaltWriter {
 		rootSStructure.setSName("root");
 		docGraph.addSNode(rootSStructure);
 		
+		// we'll create dominance relations from the root of the SDocument to 
+		// all the roots of the syntactic trees that it will contain
 		addSyntaxTreeRootDomRelsToDocGraph(syntaxIGraph, docGraph, iNodeIdToSStructureMap, rootSStructure);
 		addSyntaxNodeDomRelsToDocGraph(syntaxIGraph, docGraph, iNodeIdToSStructureMap, iNodeIdToSNodeIdMap, sNodeIdToSNodeMap);
 	}	

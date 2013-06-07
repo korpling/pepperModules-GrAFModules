@@ -228,10 +228,14 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	}
 	
 	/**
-	 * This method is called by method start() of superclass PepperImporter, if the method was not overriden
-	 * by the current class. If this is not the case, this method will be called for every document which has
-	 * to be processed.
-	 * @param sElementId the id value for the current document or corpus to process  
+	 * 	This is the "main" method of the GrafModules. It converts one IGraph to
+	 *  an SDocument(Graph).
+	 * 
+	 * 	This method is called by method start() of superclass PepperImporter, if the method was not overriden
+	 * 	by the current class. If this is not the case, this method will be called for every document which has
+	 * 	to be processed.
+	 * 	@param sElementId - the id value for the current document or corpus to process,
+	 *  	e.g. SElementIdImpl@76fe15f1 (namespace: graph, name: id, value: salt:/MASC_labels_not_namespaces/MASC1-00030)
 	 */
 	@Override
 	public void start(SElementId sElementId) throws PepperModuleException 
