@@ -281,7 +281,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 				
 				}			
 				catch (Exception e) {
-					new GrAFImporterException("Cannot import SDocument '"+sElementId+"' ",e);
+					throw new GrAFImporterException("Cannot import SDocument '"+sElementId+"' ",e);
 				}
 			}
 		}//only if given sElementId belongs to an object of type SDocument or SCorpus
