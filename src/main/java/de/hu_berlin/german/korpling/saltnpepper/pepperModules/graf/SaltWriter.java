@@ -226,9 +226,60 @@ public class SaltWriter {
 				iNodeIdsToSNodeIdsMap.put(iNode.getId(), sSpanId);
 			}
 		}
+		
+		// TODO: remove after debugging
+		HashMap<String, List<String>> iNodeIdToIRegionIdsMap = getINodeIdToIRegionIdsMap(iDocumentGraph,
+																sDocumentGraph);
+		// TODO: remove after debugging
+		System.out.println("DEBUG addSSpansToSDocument ...");
+		HashMap<String, List<String>> iRegionIdToINodeIdsMap = getIRegionIdToINodeIdsMap(iDocumentGraph);
+		for (String regionId : regionIdsToTokenIdsMap.keySet()) {
+			if (iRegionIdToINodeIdsMap.containsKey(regionId)) {
+				System.out.println("IRegion "+regionId 
+					+" maps to SToken "+regionIdsToTokenIdsMap.get(regionId)
+					+"\nand is linked to from INodes "+iRegionIdToINodeIdsMap.get(regionId));
+			}
+			else {
+				System.out.println("DEBUG: Panic!!!");
+			}
+		}
+		
 		return iNodeIdsToSNodeIdsMap;		
 	}
 
+	/** creates a map from INodes to the IRegions they link to
+	 *  @return a map from INode ID to a list of IRegion IDs */
+	public static HashMap<String, List<String>> getINodeIdToIRegionIdsMap(IGraph iDocumentGraph,
+													SDocumentGraph sDocumentGraph) {
+		HashMap<String, List<String>> iNodeIdToIRegionIdsMap = new HashMap<String, List<String>>();
+		for (INode iNode : iDocumentGraph.getNodes()) {
+			List<IRegion> iRegionsCoveredByINode = getIRegionsCoveredByINode(iNode, sDocumentGraph);
+			List<String> iRegionIds = new ArrayList<String>();
+			for (IRegion iRegion : iRegionsCoveredByINode) {
+				iRegionIds.add(iRegion.getId());
+			}
+			iNodeIdToIRegionIdsMap.put(iNode.getId(), iRegionIds);
+		}
+		return iNodeIdToIRegionIdsMap;
+	}
+	
+	/** creates a map from IRegions to the INodes that link to them
+	 *  @return a map from IRegion ID to a list of INode IDs*/
+	public static HashMap<String, List<String>> getIRegionIdToINodeIdsMap(IGraph iDocumentGraph) {
+		HashMap<String, List<String>> iRegionToINodesMap = new HashMap<String, List<String>>();
+		Collection<IRegion> regions = iDocumentGraph.getRegions();
+		for (IRegion region : regions) {
+			List<INode> nodes = region.getNodes();
+			List<String> nodeIds = new ArrayList<String>();
+			for (INode node : nodes) {
+				nodeIds.add(node.getId());
+			}
+			iRegionToINodesMap.put(region.getId(), nodeIds);
+		}
+		return iRegionToINodesMap;
+	}
+	
+	
 	/** returns a list of IRegions that an INode covers (via links or 
 	 *  recursively via outbound IEdges that connect to other INodes (that link
 	 *  to IRegions). */
