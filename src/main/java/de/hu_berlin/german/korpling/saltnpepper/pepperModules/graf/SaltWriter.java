@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import static java.util.Arrays.asList;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.emf.common.util.BasicEList;
@@ -209,21 +210,30 @@ public class SaltWriter {
 	 *  		penn-n6 node (tony, NNP) --> link to IRegion seg-r11
 	 *  		penn-n7 node (hall, NNP) --> link to IRegion seg-r13
 	 */
-	public static HashMap<String, String> addSSpansToSDocument(IGraph iDocumentGraph, 
+	public static HashMap<String, List<String>> addSSpansToSDocument(IGraph iDocumentGraph, 
 												 SDocument sDocument,
-												 HashMap<String,String> regionIdsToTokenIdsMap) {
+												 HashMap<String,List<String>> regionIdsToTokenIdsMap) {
 
 		SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
-		HashMap<String, String> iNodeIdsToSNodeIdsMap = new HashMap<String, String>();
+		HashMap<String, List<String>> iNodeIdsToSNodeIdsMap = new HashMap<String, List<String>>();
 		
 		Collection<INode> iNodes = iDocumentGraph.getNodes();	
 		for (INode iNode : iNodes) {
 			List<IRegion> iRegionsCoveredByINode = getIRegionsCoveredByINode(iNode, sDocumentGraph);
-			if (iRegionsCoveredByINode.size() == 1) {
+			if (iRegionsCoveredByINode.size() == 0) {
+				// in GrAF, it is allowed to have nodes that have neither
+				// outgoing edges nor links to regions of primary text!
+				System.out.println("DEBUG addSSpansToSDocument:");
+				System.out.println("\tINode '"+iNode.getId()+"' doesn't cover any regions! Add SNode here!!!");
+			}
+			else if (iRegionsCoveredByINode.size() == 1) {
 				String coveredIRegionId = iRegionsCoveredByINode.get(0).getId();
 				if (regionIdsToTokenIdsMap.containsKey(coveredIRegionId)) {
-					String coveredSTokenId = regionIdsToTokenIdsMap.get(coveredIRegionId);
-					iNodeIdsToSNodeIdsMap.put(iNode.getId(), coveredSTokenId);
+					List<String> coveredSTokenIds = regionIdsToTokenIdsMap.get(coveredIRegionId);
+					iNodeIdsToSNodeIdsMap.put(iNode.getId(), coveredSTokenIds);
+				}
+				else {
+					throw new GrAFImporterException("IRegion "+coveredIRegionId+" can't be found in regionIdsToTokenIdsMap.");
 				}
 			}
 			else if (iRegionsCoveredByINode.size() > 1) {
@@ -234,7 +244,8 @@ public class SaltWriter {
 														sDocumentGraph);
 				List<SLayer> sLayers = SaltWriter.mapTokensToSLayers(tokens);
 				String sSpanId = addSSpanToSDocument(tokens, sDocument, sLayers);
-				iNodeIdsToSNodeIdsMap.put(iNode.getId(), sSpanId);
+				iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(sSpanId)); 
+				// using a list here to make the map usable for both SSpanIDs as well as STokenIDs
 			}
 		}
 		
