@@ -170,15 +170,17 @@ public class SaltWriter {
 
 	/** takes a list of IRegions and returns the corresponding STokens*/
 	public static List<SToken> mapRegionsToTokens(List<IRegion> regions, 
-											   HashMap<String,String> regionToTokenMap,
+											   HashMap<String,List<String>> regionIdToTokenIdsMap,
 											   SDocumentGraph docGraph) {
 		List<SToken> tokenList = new ArrayList<SToken>();
 		for (IRegion region : regions) {
 			String regionId = region.getId();
-			if (regionToTokenMap.containsKey(regionId)) {
-				String tokenId = regionToTokenMap.get(regionId);
-				SToken sToken = (SToken) docGraph.getSNode(tokenId);
-				tokenList.add(sToken);
+			if (regionIdToTokenIdsMap.containsKey(regionId)) {
+				List<String> tokenIds = regionIdToTokenIdsMap.get(regionId);
+				for (String tokenId : tokenIds) {
+					SToken sToken = (SToken) docGraph.getSNode(tokenId);
+					tokenList.add(sToken);					
+				}
 			}
 			else {
 				throw new NullPointerException("There's no SToken mapped to the IRegion " + regionId);
