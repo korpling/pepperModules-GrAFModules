@@ -91,36 +91,8 @@ public class GrafReader {
 		for (INode annoNodes : region.getNodes()) {
 			String annoSpaceName = annoNodes.getAnnotation().getAnnotationSpace().getName();
 			annoSpaceNames.add(annoSpaceName);
-	
-	/** Inefficient method to retrieve a list of all the annotation types used
-	 *  in an IGraph. Annotation types that don't have their own name space
-	 *  won't be listed (e.g. 'f.fntok' or 'f.ptbtok') since they reuse
-	 *  existing name spaces (e.g. 'f.fn' and 'f.ptb'). 
-	 *  Use GrafDocumentHeader.getDocumentAnnotationTypes() instead, if you just 
-	 *  want to know which annotation types are specified in the document 
-	 *  header. Use GrafResourceHeader.getCorpusAnnotationTypes() to retrieve
-	 *  all the annotation types used in the corpus. */
-	public static HashSet<String> getGraphAnnotationTypes(IGraph iGraph) {
-		Collection<IRegion> regions = iGraph.getRegions();
-		Collection<INode> nodes = iGraph.getNodes();
-		HashSet<String> annoTypes = new HashSet<String>();
-		
-		for (IRegion region : regions) {
-			String regionId = region.getId();
-			String annotationType = GrafReader.convertElementIdToAnnotationType(regionId);
-			if (!annoTypes.contains(annotationType)) {
-				annoTypes.add(annotationType);
-			}
-		}
-		for (INode node : nodes) {
-			String nodeId = node.getId();
-			String annotationType = GrafReader.convertElementIdToAnnotationType(nodeId);
-			if (!annoTypes.contains(annotationType)) {
-				annoTypes.add(annotationType);
-			}
 		}
 		return annoSpaceNames;
-		return annoTypes; 
 	}
 	
 
@@ -161,28 +133,7 @@ public class GrafReader {
 			}
 		}
 		return fileCount;
-	}
-	
-
-	/** Takes an annotation type string (e.g. 'f.penn' or 'f.seg') and translates it
-	 *  into the corresponding element prefix (e.g. 'penn-' and 'seg-'). 
-	 *  
-	 *  This method is used to filter regions, nodes etc. by annotation type. */
-	public static String convertAnnoTypeToElementIdPrefix(String annotationType) {
-		String annoTypeSuffix = annotationType.substring(2); // "f.seg" --> "seg"
-		return annoTypeSuffix + "-";
-	}
-
-
-	/** Takes an element ID string (e.g. 'seg-r023' or 'ptb-n00136') and returns 
-	 *  the corresponding annotation type, e.g. 'f.seg' or 'f.ptb'.
-	 *  
-	 *   This method is used to find out, which annotation level/type an 
-	 *   element (region, node etc.) belongs to. */
-	public static String convertElementIdToAnnotationType(String regionId) {
-		String[] splitRegionId = regionId.split("-");
-		return "f." + splitRegionId[0];
-	}			
+	}		
 
 
 	/** returns a list of INodes that belong to a certain annotation layer.
