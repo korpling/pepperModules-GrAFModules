@@ -84,6 +84,13 @@ public class GrafReader {
 											+ "chosen annotation type.");
 	}
 
+	/** returns a list of names of annotation spaces that the given IRegion
+	 *  is annotated in. */
+	public static List<String> getAnnoSpaceNamesFromRegion(IRegion region) {
+		ArrayList<String> annoSpaceNames = new ArrayList<String>();
+		for (INode annoNodes : region.getNodes()) {
+			String annoSpaceName = annoNodes.getAnnotation().getAnnotationSpace().getName();
+			annoSpaceNames.add(annoSpaceName);
 	
 	/** Inefficient method to retrieve a list of all the annotation types used
 	 *  in an IGraph. Annotation types that don't have their own name space
@@ -112,6 +119,7 @@ public class GrafReader {
 				annoTypes.add(annotationType);
 			}
 		}
+		return annoSpaceNames;
 		return annoTypes; 
 	}
 	
