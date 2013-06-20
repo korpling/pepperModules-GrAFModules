@@ -105,57 +105,66 @@ public class SaltWriter {
 	}
 	
 	
-	/** adds an IRegion to an SDocument (in the form of an SToken). 
-	 *  An IRegion is an annotation that works directly on the primary text, 
-	 *  e.g. word segmentation or sentence boundaries. 
-	 *  @return the ID of the created token*/
-	public static String addIRegionToSDocument(IRegion iRegion, 
+	/** adds an IRegion to an SDocument (in the form of one or several STokens). 
+	 *  An IRegion represents a segment of the primary text (e.g. a token),
+	 *  which can be annotated by zero or more INodes (each of them belonging
+	 *  to a different annotation space). For each of the annotation spaces an
+	 *  IRegion belongs to, this method will create a new SToken.
+	 *  @return the list of IDs of the created STokens*/
+	public static List<String> addIRegionToSDocument(IRegion iRegion, 
 			 					 			 SDocument sDocument,
 			 					 			 STextualDS sTextualDS,
-			 					 			 HashMap<String, SLayer> annoTypeNameMap) {
+			 					 			 HashMap<String, SLayer> annoSpaceSLayerMap) {
 		
 		String iRegionId = iRegion.getId();
 		List<IAnchor> anchors = iRegion.getAnchors();
 		int startAnchor = Integer.parseInt( anchors.get(0).writeString() );
 		int endAnchor = Integer.parseInt( anchors.get(1).writeString() );
 
-		String annoType = GrafReader.convertElementIdToAnnotationType(iRegionId);
-		SLayer regionLayer = annoTypeNameMap.get(annoType);
-		
-		return addTokenToDocument(startAnchor, endAnchor, sTextualDS, sDocument, regionLayer, iRegionId);	
+		List<String> sTokenIds = new ArrayList<String>();
+		for (INode annoNode : iRegion.getNodes()) {
+			String annoSpaceName = annoNode.getAnnotation().getAnnotationSpace().getName();
+			SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
+			String sTokenId = addTokenToDocument(startAnchor, endAnchor, sTextualDS, sDocument, regionLayer, iRegionId);
+			sTokenIds.add(sTokenId);
+		}
+				
+		return sTokenIds; 	
 	}
 
 
 	/** add ALL IRegions to an SDocument and returns a map from IRegion IDs
-	 *  (e.g. 'seg-r316') to their corresponding STokenId
+	 *  (e.g. 'seg-r316') to their corresponding STokenId(s)
 	 *  (e.g. 'salt:/MASC/MASC1-00046/MASC1-00046_graph#seg-r316').
 	 *  
 	 *  @param iDocumentGraph - the IGraph that contains all the IRegions to be added
 	 *  @param sDocument - the SDocument that the regions will be added to (as STokens)
-	 *  @return a map from IRegion ID to SToken ID  */
-	public static HashMap<String,String> addAllIRegionsToSDocument(IGraph iDocumentGraph, 
+	 *  @return a map from IRegion ID to a list of SToken IDs  */
+	public static HashMap<String,List<String>> addAllIRegionsToSDocument(IGraph iDocumentGraph, 
 			 													   SDocument sDocument) 
 			 													   throws GrafException {
-
-		STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
-		Collection<IAnnotationSpace> annotationSpaces = iDocumentGraph.getAnnotationSpaces();
-				
-		HashMap<String, SLayer> annoTypeSlayerMap = new HashMap<String, SLayer>();
+		
+		// create a new SLayer for each IAnnotationSpace in an IGraph and add
+		// it to the SDocument. create a Map (annotation space name --> SLayer).
+		HashMap<String, SLayer> annoSpaceSLayerMap = new HashMap<String, SLayer>();
 		for (IAnnotationSpace annoSpace : iDocumentGraph.getAnnotationSpaces()) {
 			String annoSpaceName = annoSpace.getName();
 			SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
 			annoLayer.setSName(annoSpaceName);
-			annoTypeSlayerMap.put(annoSpaceName, annoLayer);
+			annoSpaceSLayerMap.put(annoSpaceName, annoLayer);
 			sDocument.getSDocumentGraph().addSLayer(annoLayer);
 		}
-			
-		HashMap<String, String> regionIdToTokenIdMap = new HashMap<String, String>();
+		
+		// add all IRegions from an IGraph to an SDocument. create a map 
+		// (IRegion ID --> list of SToken IDs)
+		STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
+		HashMap<String, List<String>> regionIdToTokenIdsMap = new HashMap<String, List<String>>();
 		for (IRegion iRegion : iDocumentGraph.getRegions()) {
 			String regionId = iRegion.getId();
-			String tokenId = addIRegionToSDocument(iRegion, sDocument, sTextualDS, annoTypeSlayerMap);
-			regionIdToTokenIdMap.put(regionId, tokenId);
+			List<String> tokenIds = addIRegionToSDocument(iRegion, sDocument, sTextualDS, annoSpaceSLayerMap);
+			regionIdToTokenIdsMap.put(regionId, tokenIds);				
 		}		
-		return regionIdToTokenIdMap;
+		return regionIdToTokenIdsMap;
 	}
 
 

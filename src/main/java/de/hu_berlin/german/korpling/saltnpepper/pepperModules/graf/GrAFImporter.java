@@ -208,13 +208,13 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	 *  that do so.
 	 *  
 	 *  @return a map from INode IDs to a SNode (here: SToken/SSpan) IDs */
-	public static HashMap<String, String> addGrafStructureToSDocument(IGraph iGraph, 
+	public static HashMap<String, List<String>> addGrafStructureToSDocument(IGraph iGraph, 
 																					SDocument sDocument)
 																					throws GrafException {
-		HashMap<String, String> regionIdsToTokenIdsMap; 
-		regionIdsToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
+		HashMap<String, List<String>> regionIdToTokenIdsMap; 
+		regionIdToTokenIdsMap = SaltWriter.addAllIRegionsToSDocument(iGraph, 
 													sDocument);
-		return SaltWriter.addSSpansToSDocument(iGraph, sDocument, regionIdsToTokenIdsMap);
+		return SaltWriter.addSSpansToSDocument(iGraph, sDocument, regionIdToTokenIdsMap);
 	}
 	
 	/**
