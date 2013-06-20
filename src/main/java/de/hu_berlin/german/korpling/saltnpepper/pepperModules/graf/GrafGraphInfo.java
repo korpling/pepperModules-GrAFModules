@@ -157,43 +157,42 @@ public class GrafGraphInfo {
 		}
 	}	
 
-	/** prints the annotation types present in an IGraph and counts the number 
-	 *  of INodes using that annotation type */
+	/** prints the annotation spaces present in an IGraph and counts the number 
+	 *  of INodes using that annotation space */
 	public static void printNodesStatistics(IGraph iGraph) {
-		HashMap<String,Integer> annoTypeNodeCountMap = getNodeCountPerAnnoType(iGraph);
+		HashMap<String,Integer> annoSpaceNodeCountMap = getNodeCountPerAnnoSpace(iGraph);
 		
-		System.out.println("node annotation types:");
-		for (String annoType : annoTypeNodeCountMap.keySet()) {
-			System.out.println("\t" + annoType + " : " + annoTypeNodeCountMap.get(annoType) + " nodes");
+		System.out.println("node annotation spaces:");
+		for (String annoSpace : annoSpaceNodeCountMap.keySet()) {
+			System.out.println("\t" + annoSpace + " : " + annoSpaceNodeCountMap.get(annoSpace) + " nodes");
 		}
 	}
 
 	/** returns a <String, int> map that counts the nodes for each 
-	 *  annotation type */
-	public static HashMap<String, Integer> getNodeCountPerAnnoType(IGraph iGraph) {
+	 *  annotation space */
+	public static HashMap<String, Integer> getNodeCountPerAnnoSpace(IGraph iGraph) {
 		Collection<INode> nodes = iGraph.getNodes();
-		HashMap<String, Integer> annoTypeNodeCountMap = new HashMap<String, Integer>();
+		HashMap<String, Integer> annoSpaceNodeCountMap = new HashMap<String, Integer>();
 		
 		for (INode node : nodes) {
-			String nodeId = node.getId();
-			String annotationType = GrafReader.convertElementIdToAnnotationType(nodeId);
-			if (annoTypeNodeCountMap.containsKey(annotationType)) {
-				Integer nodeCount = annoTypeNodeCountMap.get(annotationType);
-				annoTypeNodeCountMap.put(annotationType, nodeCount+1);
+			String annoSpaceName = node.getAnnotation().getAnnotationSpace().getName();
+			if (annoSpaceNodeCountMap.containsKey(annoSpaceName)) {
+				Integer nodeCount = annoSpaceNodeCountMap.get(annoSpaceName);
+				annoSpaceNodeCountMap.put(annoSpaceName, nodeCount+1);
 			} else {
-				annoTypeNodeCountMap.put(annotationType, 1);
+				annoSpaceNodeCountMap.put(annoSpaceName, 1);
 			}
 		}
-		return annoTypeNodeCountMap;
+		return annoSpaceNodeCountMap;
 	}
 		
 
 	/** prints the ID and primary text of all INodes present in a 
-	 *  given annotation type/level. */
-	public static void printNodesOfAnnoType(IGraph iGraph, String annoType) throws GrafException {
-		String nodeIdPrefix = GrafReader.convertAnnoTypeToElementIdPrefix(annoType);
+	 *  given annotation space. */
+	public static void printNodesOfAnnoSpace(IGraph iGraph, String annoSpace) throws GrafException {
 		for (INode node : iGraph.getNodes()) {
-			if (node.getId().startsWith(nodeIdPrefix)) {
+			String nodeAnnoSpace = node.getAnnotation().getAnnotationSpace().getName();
+			if (annoSpace.equals(nodeAnnoSpace)) {
 				String primaryTextSequence = GrafReader.getPrimaryTextSequence(node, iGraph);
 				System.out.println("node " + node.getId() + ": " + primaryTextSequence);
 			}
@@ -209,45 +208,45 @@ public class GrafGraphInfo {
 		System.out.println("    primary text sequence: " + GrafReader.getPrimaryTextSequence(regionOffsets[0], regionOffsets[1], iGraph));
 	}		
 	
-	
-	/** prints all annotation types that work directly on the primary text 
-	 *  (e.g. f.seg, f.logical) and list how many IRegions they have. */
+
+	/** prints all annotation spaces that work directly on the primary text 
+	 *  and lists how many IRegions they annotate. */
 	public static void printRegionsStatistics(IGraph iGraph) {
-		HashMap<String,Integer> annoTypeRegionCountMap = getRegionCountPerAnnoType(iGraph);
+		HashMap<String,Integer> annoSpaceRegionCountMap = getRegionCountPerAnnoSpace(iGraph);
 		
-		System.out.println("region annotation types (working directly on the primary text):");
-		for (String annoType : annoTypeRegionCountMap.keySet()) {
-			System.out.println("\t" + annoType + " : " + annoTypeRegionCountMap.get(annoType) + " regions");
+		System.out.println("region annotation spaces (working directly on the primary text):");
+		for (String annoSpace : annoSpaceRegionCountMap.keySet()) {
+			System.out.println("\t" + annoSpace + " : " + annoSpaceRegionCountMap.get(annoSpace) + " regions");
 		}
 	}
-	
-	/** returns a <String, int> map that counts the regions for each 
-	 *  annotation type that work directly on the primary text 
-	 *  (e.g. f.seg, f.logical) */
-	public static HashMap<String, Integer> getRegionCountPerAnnoType(IGraph iGraph) {
+
+	/** returns a <String, int> map that contains the names of annotation 
+	 *  spaces as keys and the number of regions they annotate as values */
+	public static HashMap<String, Integer> getRegionCountPerAnnoSpace(IGraph iGraph) {
 		Collection<IRegion> regions = iGraph.getRegions();
-		HashMap<String, Integer> annoTypeRegionCountMap = new HashMap<String, Integer>();
+		HashMap<String, Integer> annoSpaceRegionCountMap = new HashMap<String, Integer>();
 		
 		for (IRegion region : regions) {
-			String regionId = region.getId();
-			String annotationType = GrafReader.convertElementIdToAnnotationType(regionId);
-			if (annoTypeRegionCountMap.containsKey(annotationType)) {
-				Integer regionCount = annoTypeRegionCountMap.get(annotationType);
-				annoTypeRegionCountMap.put(annotationType, regionCount+1);
-			} else {
-				annoTypeRegionCountMap.put(annotationType, 1);
+			List<String> annoSpaceNames = GrafReader.getAnnoSpaceNamesFromRegion(region);
+			for (String annoSpaceName : annoSpaceNames) {
+				if (annoSpaceRegionCountMap.containsKey(annoSpaceName)) {
+					Integer regionCount = annoSpaceRegionCountMap.get(annoSpaceName);
+					annoSpaceRegionCountMap.put(annoSpaceName, regionCount+1);
+				} else {
+					annoSpaceRegionCountMap.put(annoSpaceName, 1);
+				}				
 			}
 		}
-		return annoTypeRegionCountMap;
+		return annoSpaceRegionCountMap;
 	}
 	
+
 	/** prints the ID and primary text of all IRegions present in a 
-	 *  given annotation type/level. */
-	public static void printRegionsOfAnnoType(IGraph iGraph, String annoType) throws GrafException {
-		String regionIdPrefix = GrafReader.convertAnnoTypeToElementIdPrefix(annoType);
-		Collection<IRegion> regions = iGraph.getRegions();
-		for (IRegion region : regions) {
-			if (region.getId().startsWith(regionIdPrefix)) {
+	 *  given annotation space. */
+	public static void printRegionsOfAnnoSpace(IGraph iGraph, String annoSpace) throws GrafException {
+		for (IRegion region : iGraph.getRegions()) {
+			List<String> regionAnnoSpaces = GrafReader.getAnnoSpaceNamesFromRegion(region);
+			if (regionAnnoSpaces.contains(annoSpace)) {
 				String primaryTextSequence = GrafReader.getPrimaryTextSequence(region, iGraph);
 				System.out.println("region " + region.getId() + ": " + primaryTextSequence);
 			}
@@ -267,7 +266,7 @@ public class GrafGraphInfo {
 	
 	/** Lists the dependencies, annotation spaces and roots that an IGraph has.
 	 *  Results will only be meaningful if the IGraph contains only one or few 
-	 *  annotation types. */
+	 *  annotation spaces. */
 	public static void printStandoffHeaderInfo(IGraph graph) {
 		IStandoffHeader header = graph.getHeader();
 
