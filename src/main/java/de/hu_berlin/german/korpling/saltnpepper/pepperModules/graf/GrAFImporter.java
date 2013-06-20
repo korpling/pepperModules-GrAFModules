@@ -254,9 +254,9 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
 					
-					HashMap<String, String> iNodeIdToSNodeIdMap = addGrafStructureToSDocument(iGraph, sDocument);		
+					HashMap<String, List<String>> iNodeIdToSNodeIdsMap = addGrafStructureToSDocument(iGraph, sDocument);		
 					HashMap<String, SNode> sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(iGraph, 
-																	iNodeIdToSNodeIdMap, 
+																	iNodeIdToSNodeIdsMap, 
 																	sDocument);
 					
 					// adds syntax structures from the IGraph's syntax annotation
@@ -265,17 +265,18 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					
 //					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
 					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
-											iNodeIdToSNodeIdMap, 
+											iNodeIdToSNodeIdsMap, 
 											sNodeIdToSNodeMap, 
 											sDocument);
 					
 //					for (String iNodeId : iNodeIdToSNodeIdMap.keySet()) {
 //						System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
 //					}
+					System.out.println("DEBUGGING GrAFImporter.start():");
 					for (INode iNode : syntaxIGraph.getNodes()) {
 						if (GrafReader.isLeafNode(iNode)) {
 							String iNodeId = iNode.getId();
-							System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
+							System.out.println("\tINode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdsMap.get(iNodeId));
 						}
 					}
 				

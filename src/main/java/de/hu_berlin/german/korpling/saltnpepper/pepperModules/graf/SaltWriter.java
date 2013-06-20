@@ -372,7 +372,7 @@ public class SaltWriter {
 	 *  @return a map from SNode (or SToken/SSpan) IDs to SNodes (or STokens/SSpans) 
 	 * @throws GrafException */
 	public static HashMap<String,SNode> addAnnotationsToSDocument(IGraph iGraph, 
-							HashMap<String,String> iNodeIdToSNodeIdMap, 
+							HashMap<String,List<String>> iNodeIdToSNodeIdMap, 
 							SDocument sDocument) throws GrafException {
 		
 		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
@@ -387,9 +387,11 @@ public class SaltWriter {
 		
 		for (String iNodeId : iNodeIdToSNodeIdMap.keySet()) {
 			INode annotationINode = iGraph.findNode(iNodeId);
-			String sNodeId = iNodeIdToSNodeIdMap.get(iNodeId);
-			SNode sNode = nodeIdToNodeMap.get(sNodeId);
-			addAnnotationsToSNode(annotationINode, sNode);
+			List<String> sNodeIds = iNodeIdToSNodeIdMap.get(iNodeId);
+			for (String sNodeId : sNodeIds) {
+				SNode sNode = nodeIdToNodeMap.get(sNodeId);
+				addAnnotationsToSNode(annotationINode, sNode);				
+			}
 		}
 		return nodeIdToNodeMap;
 	}
@@ -475,7 +477,7 @@ public class SaltWriter {
 	public static void addSyntaxNodeDomRelsToDocGraph(IGraph syntaxIGraph, 
 			SDocumentGraph docGraph, 
 			HashMap<String,SStructure> iNodeIdToSStructureMap,
-			HashMap<String,String> iNodeIDsToSNodeIdsMap,
+			HashMap<String,List<String>> iNodeIDsToSNodeIdsMap,
 			HashMap<String,SNode> sNodeIdToSNodeMap) throws GrafException {
 				
 		for (INode syntaxINode : syntaxIGraph.getNodes()) {
@@ -540,13 +542,15 @@ public class SaltWriter {
 							docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
 						} 
 						else {
-							String dominatedSElementId = iNodeIDsToSNodeIdsMap.get(dominatedINodeId);
-							if (sNodeIdToSNodeMap.containsKey(dominatedSElementId)) {
-								SNode dominatedSNode = sNodeIdToSNodeMap.get(dominatedSElementId);
-								docGraph.addSNode(sourceSStructure, dominatedSNode, domRel);
-							}
-							else {
-								System.out.println("DEBUG: DAMN, can't find element '"+dominatedSElementId+"' in token map or span map!1!!");
+							List<String> dominatedSElementIds = iNodeIDsToSNodeIdsMap.get(dominatedINodeId);
+							for (String dominatedSElementId : dominatedSElementIds) {
+								if (sNodeIdToSNodeMap.containsKey(dominatedSElementId)) {
+									SNode dominatedSNode = sNodeIdToSNodeMap.get(dominatedSElementId);
+									docGraph.addSNode(sourceSStructure, dominatedSNode, domRel);
+								}
+								else {
+									System.out.println("DEBUG: DAMN, can't find element '"+dominatedSElementId+"' in token map or span map!1!!");
+								}
 							}
 						}						
 					}
@@ -564,7 +568,7 @@ public class SaltWriter {
 	 *  @param sNodeIdToSNodeMap - maps from SNode IDs to SNodes
 	 * @throws GrafException */
 	public static void addSyntaxToSDocument(IGraph syntaxIGraph,
-			HashMap<String, String> iNodeIdToSNodeIdMap,
+			HashMap<String, List<String>> iNodeIdToSNodeIdMap,
 			HashMap<String, SNode> sNodeIdToSNodeMap,
 			SDocument sDocument) throws GrafException {
 		
