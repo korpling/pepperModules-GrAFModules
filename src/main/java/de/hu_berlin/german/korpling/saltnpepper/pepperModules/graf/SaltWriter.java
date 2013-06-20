@@ -246,7 +246,7 @@ public class SaltWriter {
 		HashMap<String, List<String>> iRegionIdToINodeIdsMap = getIRegionIdToINodeIdsMap(iDocumentGraph);
 		for (String regionId : regionIdsToTokenIdsMap.keySet()) {
 			if (iRegionIdToINodeIdsMap.containsKey(regionId)) {
-				System.out.println("IRegion "+regionId 
+				System.out.println("\tIRegion "+regionId 
 					+" maps to SToken "+regionIdsToTokenIdsMap.get(regionId)
 					+"\nand is linked to from INodes "+iRegionIdToINodeIdsMap.get(regionId));
 			}
