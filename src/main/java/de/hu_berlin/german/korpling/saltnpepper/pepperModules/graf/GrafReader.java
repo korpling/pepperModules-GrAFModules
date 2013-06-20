@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
+import static java.util.Arrays.asList;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -137,13 +138,13 @@ public class GrafReader {
 
 
 	/** returns a list of INodes that belong to a certain annotation layer.
-	 *  @param annoType - e.g. "f.seg", will return all nodes whose ID begin with "seg-" */
-	public static List<INode> getNodesOfAnnoType(IGraph iGraph, String annoType) throws GrafException {
-		String nodeIdPrefix = GrafReader.convertAnnoTypeToElementIdPrefix(annoType);
+	 *  @param annoSpaceName - e.g. "ptb", will return all nodes which contain
+	 *  annotations in the annotation space "ptb" */
+	public static List<INode> getNodesOfAnnoSpace(IGraph iGraph, String annoSpaceName) throws GrafException {
 		ArrayList<INode> filteredNodes = new ArrayList<INode>();
 		
 		for (INode node : iGraph.getNodes()) {
-			if (node.getId().startsWith(nodeIdPrefix)) {
+			if (annoSpaceName.equals(node.getAnnotation().getAnnotationSpace().getName())) {
 				filteredNodes.add(node);
 			}
 		}
@@ -204,27 +205,19 @@ public class GrafReader {
 	}	
 
 	/** returns the IRegions belonging to a given annotation type */
-	public static List<IRegion> getRegionsOfAnnoType(IGraph iGraph, String annoType) throws GrafException {
-		String[] annoTypes = new String[] {annoType};
-		return getRegionsOfAnnoTypes(iGraph, annoTypes);
+	public static List<IRegion> getRegionsOfAnnoSpace(IGraph iGraph, String annoSpace) throws GrafException {
+		return getRegionsOfAnnoSpaces(iGraph, asList(annoSpace));
 	}
 	
 	/** returns the IRegions belonging to one of the given annotation types */
-	public static List<IRegion> getRegionsOfAnnoTypes(IGraph iGraph, String[] annoTypes) throws GrafException {
-
-		List<String> regionIdPrefixes = new ArrayList<String>();
-		for (String annoType: annoTypes) {
-			String regionIdPrefix = GrafReader.convertAnnoTypeToElementIdPrefix(annoType);
-			regionIdPrefixes.add(regionIdPrefix);
-		}
-		
-		Collection<IRegion> iGraphRegions = iGraph.getRegions();
+	public static List<IRegion> getRegionsOfAnnoSpaces(IGraph iGraph, List<String> annoSpaces) throws GrafException {
 		List<IRegion> filteredRegions = new ArrayList<IRegion>();
-		for (IRegion region : iGraphRegions) {
-			String regionId = region.getId();
-			for (String regionIdPrefix : regionIdPrefixes) {
-				if (regionId.startsWith(regionIdPrefix)) {
-					filteredRegions.add(region);	
+		for (IRegion region : iGraph.getRegions()) {
+			List<INode> nodes = region.getNodes();
+			for (INode node : nodes) {
+				String nodeAnnoSpace = node.getAnnotation().getAnnotationSpace().getName();
+				if (annoSpaces.contains(nodeAnnoSpace)) {
+					filteredRegions.add(region);
 				}
 			}
 		}
