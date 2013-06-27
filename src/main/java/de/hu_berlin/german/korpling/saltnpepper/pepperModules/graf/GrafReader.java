@@ -163,9 +163,22 @@ public class GrafReader {
 	}
 	
 	/** returns a list of all INodes that the given INode is connected to 
-	 *  (via outgoing edges). */
+	 *  (via outgoing edges) in ascending order. 
+	 *  
+	 *  FIXME: INode.getOutEdges() returns edges in no guaranteed order, so we
+	 *  had to resort to sorting them by their ID. This works fine with the 
+	 *  MASC corpus, but is not part of the GrAF ISO standard! */
 	public static List<INode> getOutboundConnectedNodes(INode node) {
 		List<IEdge> outEdges = node.getOutEdges();
+		// sort edges in ascending order of their string IDs
+		// source: http://stackoverflow.com/a/3612334
+		Collections.sort(outEdges, Ordering.natural().onResultOf(
+			    new Function<IEdge, String>() {
+			      public String apply(IEdge from) {
+			        return from.getId();
+			      }
+			    }));
+		
 		List<INode> connectedNodes = new ArrayList<INode>();
 		for (IEdge outEdge : outEdges) {
 			connectedNodes.add(outEdge.getTo());
