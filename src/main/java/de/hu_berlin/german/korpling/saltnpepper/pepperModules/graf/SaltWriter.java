@@ -462,7 +462,7 @@ public class SaltWriter {
 			SDocumentGraph docGraph, 
 			HashMap<String, SStructure> iNodeIdToSStructureMap,
 			SStructure rootSStructure) {
-		for (INode treeRootINode : GrafReader.getSyntaxTreeRootsINodes(syntaxIGraph))
+		for (INode treeRootINode : GrafReader.getRootNodes(syntaxIGraph))
 		{
 			String treeRootNodeId = treeRootINode.getId();
 			if (iNodeIdToSStructureMap.containsKey(treeRootNodeId)) {

@@ -45,7 +45,7 @@ public class PTBTracesTest {
 	 */
 	public static void main(String[] args) throws XPathExpressionException, GrafException, SAXException, IOException {
 		// TODO Auto-generated method stub
-		String corpusPath = "/home/zbigniew/corpora/masc_one/";
+		String corpusPath = "/home/arne/corpora/masc_one/";
 		File headerFile = new File(corpusPath, "resource-header.xml");
 		ResourceHeader rscHeader = new ResourceHeader(headerFile);
 
@@ -82,7 +82,7 @@ public class PTBTracesTest {
 			for (INode node : graph.getNodes()) {
 				if (GrafReader.isFloatingNode(node)) {
 					System.out.println("\n\nfloating node: "+node.getId());
-					INode rootNode = GrafReader.getTreeRootNodeFromLeafNode(node, graph);
+					INode rootNode = GrafReader.getRootNodeFromNode(node, graph);
 //					System.out.println("\troot node: "+rootNode.getId());
 					DepthFirstSearch floatSearch = new DepthFirstSearch(graph, node);
 					INode precedingLeafNode = floatSearch.getPrecedingLeafNode(graph, node);

@@ -337,20 +337,20 @@ public class GrafReader {
 		}
 	}	
 	
-	/** FIXME: IGraph.getRoots() is broken. This is terribly inefficient workaround. */
-	public static List<INode> getSyntaxTreeRootsINodes(IGraph syntaxGraph) {
-		Collection<INode> syntaxNodes = syntaxGraph.getNodes();
-		List<INode> syntaxRootNodes = new ArrayList<INode>();
-		for (INode syntaxNode : syntaxNodes) {
-			List<IEdge> inEdges = syntaxNode.getInEdges();
+	/** FIXME: IGraph.getRoots() is broken. This is a terribly inefficient workaround. */
+	public static List<INode> getRootNodes(IGraph iGraph) {
+		Collection<INode> iNodes = iGraph.getNodes();
+		List<INode> rootNodes = new ArrayList<INode>();
+		for (INode iNode : iNodes) {
+			List<IEdge> inEdges = iNode.getInEdges();
 			for (IEdge inEdge : inEdges) {
 				INode fromNode = inEdge.getFrom();
 				if (fromNode.getInEdges().isEmpty()) {
-					syntaxRootNodes.add(syntaxNode);
+					rootNodes.add(iNode);
 				}
 			}
 		}		
-		return syntaxRootNodes;
+		return rootNodes;
 	}
 	
 	/** returns the STokens that represent the primary text segments that an
@@ -401,11 +401,12 @@ public class GrafReader {
 		}
 	}
 	
-	/** returns the root INode of the syntax tree to which the leaf node belongs. */
-	public static INode getTreeRootNodeFromLeafNode(INode leafNode, IGraph syntaxGraph) {
-		List<INode> syntaxTreeRootsINodes = getSyntaxTreeRootsINodes(syntaxGraph);
+	/** returns the root INode of the syntax tree (or any other structure) 
+	 *  to which the given (leaf) node belongs. */
+	public static INode getRootNodeFromNode(INode leafNode, IGraph iGraph) {
+		List<INode> rootNodes = getRootNodes(iGraph);
 		List<String> rootNodeCandidateIds = new ArrayList<String>();
-		for (INode rootNodeCandidate : syntaxTreeRootsINodes) {
+		for (INode rootNodeCandidate : rootNodes) {
 			String candidateId = rootNodeCandidate.getId();
 			rootNodeCandidateIds.add(candidateId);
 		}
@@ -414,7 +415,7 @@ public class GrafReader {
 			return firstParentNode;
 		}
 		else {
-			return getTreeRootNodeFromLeafNode(firstParentNode, syntaxGraph);
+			return getRootNodeFromNode(firstParentNode, iGraph);
 		}
 	}
 	

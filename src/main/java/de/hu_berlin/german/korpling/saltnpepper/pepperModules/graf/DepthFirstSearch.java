@@ -23,9 +23,9 @@ public class DepthFirstSearch {
 		nodeIdToOrderedNodeNumberMap = new HashMap<String, Integer>();
 		OrderedNodeNumberToNodeIdMap = new HashMap<Integer, String>();
 //		System.out.println("\n\ninitialize DepthFirstSearch with sourceNode "+floatingNode.getId());
-		INode treeRootNode = GrafReader.getTreeRootNodeFromLeafNode(floatingNode, graph);
-		System.out.println("\troot node: "+treeRootNode.getId());
-		dfs(graph, treeRootNode);
+		INode rootNode = GrafReader.getRootNodeFromNode(floatingNode, graph);
+		System.out.println("\troot node: "+rootNode.getId());
+		dfs(graph, rootNode);
 	}
 	
 	private void dfs(IGraph graph, INode sourceNode) {

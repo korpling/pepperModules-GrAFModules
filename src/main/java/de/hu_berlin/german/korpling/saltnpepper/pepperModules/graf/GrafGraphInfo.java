@@ -318,7 +318,7 @@ public class GrafGraphInfo {
 	 *  
 	 *  FIXME: write bug report about IGraph.getRoots() */
 	public static void printSyntaxTreeRoots(IGraph syntaxIGraph) {
-		List<INode> syntacticTreeRoots = GrafReader.getSyntaxTreeRootsINodes(syntaxIGraph);
+		List<INode> syntacticTreeRoots = GrafReader.getRootNodes(syntaxIGraph);
 		System.out.println("The IGraph has these syntactic sentence roots: ");
 		for (INode syntaxTreeRoot : syntacticTreeRoots) {
 			System.out.println("\t" + syntaxTreeRoot.getId() + " " 
