@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
 
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFExporterException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
@@ -337,6 +338,31 @@ public class GrafReader {
 		}
 	}	
 	
+	/** returns the string onset and offset of a floating node. since a 
+	 *  floating node doesn't cover any primary text, fake offsets will
+	 *  be generated. It will cover zero characters, located at the beginning
+	 *  of the primary text covered by the next leaf node. If there's no
+	 *  succeeding leaf node which covers primary text, it will be located at
+	 *  the end of the primary text covered by the preceding leaf node.
+	 * @throws GrafException */
+	public static int[] getFloatingNodeOffsets(IGraph graph, INode floatingNode) throws GrafException {
+			DepthFirstSearch floatSearch = new DepthFirstSearch(graph, floatingNode);
+			INode succeedingLeafNode = floatSearch.getSucceedingLeafNode(graph, floatingNode);
+			INode precedingLeafNode = floatSearch.getPrecedingLeafNode(graph, floatingNode);
+			if (succeedingLeafNode != null) {
+				int[] successorOffsets = getNodeOffsets(succeedingLeafNode);
+				return new int[] {successorOffsets[0], successorOffsets[0]};
+			}
+			else if (precedingLeafNode != null) {
+				int[] predecessorOffsets = getNodeOffsets(precedingLeafNode);
+				return new int[] {predecessorOffsets[1], predecessorOffsets[1]};
+			}
+			else {
+				throw new GrAFExporterException("Can't produce fake offsets for floating node "+floatingNode.getId());
+			}
+	}
+	
+	
 	/** FIXME: IGraph.getRoots() is broken. This is a terribly inefficient workaround. */
 	public static List<INode> getRootNodes(IGraph iGraph) {
 		Collection<INode> iNodes = iGraph.getNodes();
@@ -437,6 +463,20 @@ public class GrafReader {
 		}
 		return tokenNodeIds;
 	}
+
+	/** returns a list of floating nodes that the given node dominates */
+	public static List<INode> findOutboundConnectedFloatingNodes(INode dominatingNode) {
+		List<INode> outboundConnectedNodes = getOutboundConnectedNodes(dominatingNode);
+		List<INode> floatingNodes = new ArrayList<INode>();
+		for (INode connectedNode : outboundConnectedNodes) {
+			if (isFloatingNode(connectedNode)) {
+				floatingNodes.add(connectedNode);
+			}
+		}
+		return floatingNodes;
+		
+	}
+
 }
 
 
