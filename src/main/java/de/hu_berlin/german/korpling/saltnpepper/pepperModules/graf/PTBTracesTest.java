@@ -45,7 +45,7 @@ public class PTBTracesTest {
 	 */
 	public static void main(String[] args) throws XPathExpressionException, GrafException, SAXException, IOException {
 		// TODO Auto-generated method stub
-		String corpusPath = "/home/zbigniew/korpora/masc_one/";
+		String corpusPath = "/home/zbigniew/corpora/masc_one/";
 		File headerFile = new File(corpusPath, "resource-header.xml");
 		ResourceHeader rscHeader = new ResourceHeader(headerFile);
 
@@ -63,13 +63,38 @@ public class PTBTracesTest {
 		for (String docHeaderPath : desiredDocHeaderPaths) {
 			IGraph graph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath);
 			GrafGraphInfo.printAnnotationSpacesInfo(graph);
+			
+//			INode floatingNode = graph.findNode("fn-n16");
+//			DepthFirstSearch floatSearch = new DepthFirstSearch(graph, floatingNode);
+//			INode precedingLeafNode = floatSearch.getPrecedingLeafNode(graph, floatingNode);
+//			String precedingLeafNodeId = precedingLeafNode.getId();
+//			INode succeedingLeafNode = floatSearch.getSucceedingLeafNode(graph, floatingNode);
+//			if (succeedingLeafNode != null) {
+//				System.out.println("\t\tsucceeding leaf node: "+succeedingLeafNode.getId());
+//			}
+//			
+//			
+//			for (int nodeNumber : floatSearch.OrderedNodeNumberToNodeIdMap.keySet()) {
+//				System.out.println("node number: "+nodeNumber+" --> nodeId: "
+//								   + floatSearch.OrderedNodeNumberToNodeIdMap.get(nodeNumber));
+//			}
+
 			for (INode node : graph.getNodes()) {
-				if (GrafReader.isLeafNode(node)) {
-					System.out.println("leaf node: "+node.getId());
+				if (GrafReader.isFloatingNode(node)) {
+					System.out.println("\n\nfloating node: "+node.getId());
 					INode rootNode = GrafReader.getTreeRootNodeFromLeafNode(node, graph);
-					System.out.println("\troot node: "+rootNode.getId()+" has these tokens:");
-					Collection<String> branchingAncestorTokenNodes = GrafReader.getBranchingAncestorTokenNodeIds(node);
-					System.out.println("\t\t"+branchingAncestorTokenNodes);
+//					System.out.println("\troot node: "+rootNode.getId());
+					DepthFirstSearch floatSearch = new DepthFirstSearch(graph, node);
+					INode precedingLeafNode = floatSearch.getPrecedingLeafNode(graph, node);
+					if (precedingLeafNode != null) {
+						System.out.println("\t\tpreceding leaf node: "+floatSearch.getPrecedingLeafNode(graph, node).getId());						
+					}
+					else { System.out.println("\t\t there's no preceding leaf node!"); }
+					INode succeedingLeafNode = floatSearch.getSucceedingLeafNode(graph, node);
+					if (succeedingLeafNode != null) {
+						System.out.println("\t\tsucceeding leaf node: "+floatSearch.getSucceedingLeafNode(graph, node).getId());
+					}
+					else {System.out.println("\t\t there's no succeeding leaf node!");}
 				}
 			}
 		}
