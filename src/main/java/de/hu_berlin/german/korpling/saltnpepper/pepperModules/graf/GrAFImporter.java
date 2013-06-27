@@ -20,6 +20,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -273,10 +274,13 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 //						System.out.println("INode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdMap.get(iNodeId));
 //					}
 					System.out.println("DEBUGGING GrAFImporter.start():");
-					for (INode iNode : syntaxIGraph.getNodes()) {
-						if (GrafReader.isLeafNode(iNode)) {
+//					for (INode iNode : syntaxIGraph.getNodes()) {
+					for (INode iNode : iGraph.getNodes()) {
+						if (GrafReader.isFloatingNode(iNode)) {
 							String iNodeId = iNode.getId();
 							System.out.println("\tINode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdsMap.get(iNodeId));
+							DepthFirstSearch floatSearch = new DepthFirstSearch(iGraph, iNode);
+							System.out.println("\t\tsuccessor node ID: "+floatSearch.getSucceedingLeafNode(iGraph, iNode).getId());
 						}
 					}
 				
