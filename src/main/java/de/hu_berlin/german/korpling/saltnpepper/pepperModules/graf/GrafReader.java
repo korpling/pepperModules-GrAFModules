@@ -391,16 +391,16 @@ public class GrafReader {
 	/** returns a list of token node ID (with ILinks to IRegion to segments of
 	 *  the primary text) that elements of the syntax tree represented by the
 	 *  given root node.*/
-	public static Collection<String> getTokenNodesCoveredByRootNode(INode rootNode) {
+	public static List<String> getTokenNodesCoveredByRootNode(INode rootNode) {
 		List<INode> connectedNodes = getOutboundConnectedNodes(rootNode);
-		Collection<String> tokenNodeIds = new TreeSet<String>(Collator.getInstance());
+		List<String> tokenNodeIds = new ArrayList<String>();
 		for (INode connectedNode : connectedNodes) {
 			// a token node is an INode that has at least 1 ILink (to an IRegion)
 			if (connectedNode.getLinks().size() > 0) {
 				tokenNodeIds.add(connectedNode.getId());
 			}
 			else {
-				Collection<String> recursivelyConnectedTokenNodes = getTokenNodesCoveredByRootNode(connectedNode);
+				List<String> recursivelyConnectedTokenNodes = getTokenNodesCoveredByRootNode(connectedNode);
 				tokenNodeIds.addAll(recursivelyConnectedTokenNodes);
 			}
 		}
