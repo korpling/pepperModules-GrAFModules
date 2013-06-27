@@ -55,6 +55,9 @@ public class SaltWriter {
 	/** A Salt dominance relation */
 	public static STYPE_NAME domRel = STYPE_NAME.SDOMINANCE_RELATION;
 	
+	private static int floatingNodeCount;
+	
+	private static HashMap<String, SLayer> annoSpaceSLayerMap;
 	
 	/** low level method to add an annotation to an SNode (or SToken/SSpan).
 	 *  @param sAnnotationName - the name that this type of annotation shall 
@@ -147,7 +150,7 @@ public class SaltWriter {
 		
 		// create a new SLayer for each IAnnotationSpace in an IGraph and add
 		// it to the SDocument. create a Map (annotation space name --> SLayer).
-		HashMap<String, SLayer> annoSpaceSLayerMap = new HashMap<String, SLayer>();
+		annoSpaceSLayerMap = new HashMap<String, SLayer>();
 		for (IAnnotationSpace annoSpace : iDocumentGraph.getAnnotationSpaces()) {
 			String annoSpaceName = annoSpace.getName();
 			SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
@@ -204,12 +207,7 @@ public class SaltWriter {
 	 *  that do so.
 	 *  
 	 *  @return a map from an INode ID to an SNode ID (or SToken/SSpan ID),
-	 *  	
-	 *  example from MASC corpus - 20000424_nyt-NEW.*:
-	 *  ne-2 node (sex: male) --> OutEdge to two INodes from "f.penn": penn-n6, penn-n7
-	 *  		penn-n6 node (tony, NNP) --> link to IRegion seg-r11
-	 *  		penn-n7 node (hall, NNP) --> link to IRegion seg-r13
-	 * @throws GrafException 
+	 *  @throws GrafException 
 	 */
 	public static HashMap<String, List<String>> addSSpansToSDocument(IGraph iDocumentGraph, 
 												 SDocument sDocument,
