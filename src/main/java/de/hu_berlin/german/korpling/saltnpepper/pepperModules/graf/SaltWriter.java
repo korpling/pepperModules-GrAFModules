@@ -225,7 +225,22 @@ public class SaltWriter {
 				// in GrAF, it is allowed to have nodes that have neither
 				// outgoing edges nor links to regions of primary text!
 				System.out.println("DEBUG addSSpansToSDocument:");
-				System.out.println("\tINode '"+iNode.getId()+"' doesn't cover any regions! Add SNode here!!!");
+		
+				// the INode doesn't cover any primary text, therefore we have
+				// to find the floating nodes it covers and add fake tokens to the document
+				List<INode> floatingNodes = GrafReader.findOutboundConnectedFloatingNodes(iNode);
+				System.out.println("\tit covers these floating nodes:");
+				for (INode floatingNode : floatingNodes) {
+					int[] offsets = GrafReader.getFloatingNodeOffsets(iDocumentGraph, floatingNode);
+					String regionId = "floating-node-"+String.valueOf(floatingNodeCount);
+					STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
+					String annoSpaceName = floatingNode.getAnnotation().getAnnotationSpace().getName();
+					SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
+					
+					// FIXME: don't try to add the same fake token twice (can happen b/c of iRegionsCoveredByINode.size() == 0)
+					addTokenToDocument(offsets[0], offsets[1], sTextualDS, sDocument, regionLayer, regionId);
+					floatingNodeCount++;
+				}
 			}
 			else if (iRegionsCoveredByINode.size() == 1) {
 				String coveredIRegionId = iRegionsCoveredByINode.get(0).getId();
