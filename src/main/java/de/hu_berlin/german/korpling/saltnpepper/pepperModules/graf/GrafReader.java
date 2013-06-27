@@ -406,21 +406,6 @@ public class GrafReader {
 		}
 		return tokenNodeIds;
 	}
-	
-	/** given a leaf node, traverse upwards until you reach a node that is 
-	 *  connected to token nodes, return a list of these token node IDs. 
-	 *  the token node IDs belong to tokens to the right of the leaf node. */
-	public static Collection<String> getBranchingAncestorTokenNodeIds(INode leafNode) {
-		INode firstAncestor = leafNode.getInEdge(0).getFrom();
-		Collection<String> tokenNodeIdsCoveredByAncestor = getTokenNodesCoveredByRootNode(firstAncestor);
-		if (tokenNodeIdsCoveredByAncestor.size() > 0) {
-			return tokenNodeIdsCoveredByAncestor;
-		}
-		else {
-			return getBranchingAncestorTokenNodeIds(firstAncestor);
-		}
-	}
-
 }
 
 
