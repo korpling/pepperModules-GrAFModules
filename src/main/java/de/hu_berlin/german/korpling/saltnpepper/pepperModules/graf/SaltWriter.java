@@ -250,22 +250,22 @@ public class SaltWriter {
 			}
 		}
 		
-		// TODO: remove after debugging
-		HashMap<String, List<String>> iNodeIdToIRegionIdsMap = getINodeIdToIRegionIdsMap(iDocumentGraph,
-																sDocumentGraph);
-		// TODO: remove after debugging
-		System.out.println("DEBUG addSSpansToSDocument ...");
-		HashMap<String, List<String>> iRegionIdToINodeIdsMap = getIRegionIdToINodeIdsMap(iDocumentGraph);
-		for (String regionId : regionIdsToTokenIdsMap.keySet()) {
-			if (iRegionIdToINodeIdsMap.containsKey(regionId)) {
-				System.out.println("\tIRegion "+regionId 
-					+" maps to SToken "+regionIdsToTokenIdsMap.get(regionId)
-					+"\nand is linked to from INodes "+iRegionIdToINodeIdsMap.get(regionId));
-			}
-			else {
-				System.out.println("DEBUG: Panic!!!");
-			}
-		}
+//		// TODO: remove after debugging
+//		HashMap<String, List<String>> iNodeIdToIRegionIdsMap = getINodeIdToIRegionIdsMap(iDocumentGraph,
+//																sDocumentGraph);
+//		// TODO: remove after debugging
+//		System.out.println("DEBUG addSSpansToSDocument ...");
+//		HashMap<String, List<String>> iRegionIdToINodeIdsMap = getIRegionIdToINodeIdsMap(iDocumentGraph);
+//		for (String regionId : regionIdsToTokenIdsMap.keySet()) {
+//			if (iRegionIdToINodeIdsMap.containsKey(regionId)) {
+//				System.out.println("\tIRegion "+regionId 
+//					+" maps to SToken "+regionIdsToTokenIdsMap.get(regionId)
+//					+"\nand is linked to from INodes "+iRegionIdToINodeIdsMap.get(regionId));
+//			}
+//			else {
+//				System.out.println("DEBUG: Panic!!!");
+//			}
+//		}
 		
 		return iNodeIdsToSNodeIdsMap;		
 	}
