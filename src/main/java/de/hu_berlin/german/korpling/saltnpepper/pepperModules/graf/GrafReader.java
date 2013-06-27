@@ -7,6 +7,7 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -28,6 +29,12 @@ import org.xces.graf.io.dom.ResourceHeader;
 import org.xces.graf.util.GraphUtils;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
+
+import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
@@ -299,35 +306,34 @@ public class GrafReader {
 			ILink iLink = nodeLinks.get(0);
 			return getLinkOffsets(iLink);
 		}			
-		else {
+		else { // if the node has no links to regions of the primary text
 			List<IEdge> outEdges = node.getOutEdges();
 			if (outEdges.isEmpty()) {
-				return new int[] {0, 0};
-				// FIXME: maybe this should return null
-				//
-				// node is not connected to other nodes. 
-				// onset/offset 0 translates into an empty substring when 
-				// calling getPrimaryTextSequence(0, 0, graph)
+				// this node is floating, i.e. it has neither links to regions
+				// nor outgoing edges to other nodes and therefore doesn't cover
+				// any primary text
+				throw new GrAFImporterException("INode "+node.getId()+" is floating. It doesn't cover any primary text.");
 			}
-	
-			int lowestStartOffset = Integer.MAX_VALUE;
-			int highestEndOffset = Integer.MIN_VALUE;
-			
-			for (IEdge outEdge : outEdges) {
-				INode targetNode = outEdge.getTo();
-				int[] targetNodeOffsets = getNodeOffsets(targetNode);
-	
-				int startOffset = targetNodeOffsets[0];
-				int endOffset = targetNodeOffsets[1];
+			else { // if the node has outgoing edges, get offsets recursively
+				int lowestStartOffset = Integer.MAX_VALUE;
+				int highestEndOffset = Integer.MIN_VALUE;
 				
-				if (startOffset < lowestStartOffset) {
-					lowestStartOffset = startOffset;
-				}				
-				if (endOffset > highestEndOffset) {
-					highestEndOffset = endOffset;
+				for (IEdge outEdge : outEdges) {
+					INode targetNode = outEdge.getTo();
+					int[] targetNodeOffsets = getNodeOffsets(targetNode);
+		
+					int startOffset = targetNodeOffsets[0];
+					int endOffset = targetNodeOffsets[1];
+					
+					if (startOffset < lowestStartOffset) {
+						lowestStartOffset = startOffset;
+					}				
+					if (endOffset > highestEndOffset) {
+						highestEndOffset = endOffset;
+					}
 				}
+				return new int[] {lowestStartOffset, highestEndOffset};
 			}
-			return new int[] {lowestStartOffset, highestEndOffset};				
 		}
 	}	
 	
