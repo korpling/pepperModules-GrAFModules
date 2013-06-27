@@ -209,10 +209,11 @@ public class SaltWriter {
 	 *  ne-2 node (sex: male) --> OutEdge to two INodes from "f.penn": penn-n6, penn-n7
 	 *  		penn-n6 node (tony, NNP) --> link to IRegion seg-r11
 	 *  		penn-n7 node (hall, NNP) --> link to IRegion seg-r13
+	 * @throws GrafException 
 	 */
 	public static HashMap<String, List<String>> addSSpansToSDocument(IGraph iDocumentGraph, 
 												 SDocument sDocument,
-												 HashMap<String,List<String>> regionIdsToTokenIdsMap) {
+												 HashMap<String,List<String>> regionIdsToTokenIdsMap) throws GrafException {
 
 		SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
 		HashMap<String, List<String>> iNodeIdsToSNodeIdsMap = new HashMap<String, List<String>>();
