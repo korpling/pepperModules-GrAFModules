@@ -360,10 +360,21 @@ public class GrafReader {
 	}
 
 	
+	/** returns true iff an INode has no outgoing edges but has at least 
+	 *  one link (to a region). */
+	public static boolean isLeafNode(INode iNode) {
+		if (iNode.getOutEdges().isEmpty() && !iNode.getLinks().isEmpty()) {
+			return true;
+		}
+		else {
+			return false;
+		}		
+	}
+	
 	/** returns true iff an INode has no outgoing edges and does not link to
 	 *  any IRegions. */
-	public static boolean isLeafNode(INode iNode) {
-		if (iNode.getOutEdges().size() == 0 && iNode.getLinks().size() == 0) {
+	public static boolean isFloatingNode(INode iNode) {
+		if (iNode.getOutEdges().isEmpty() && iNode.getLinks().isEmpty()) {
 			return true;
 		}
 		else {
