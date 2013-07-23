@@ -578,7 +578,12 @@ public class SaltWriter {
 		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
 		List<SToken> sTokens= Collections.synchronizedList(docGraph.getSTokens());
 
-		HashMap<String, SStructure> iNodeIdToSStructureMap = createSyntaxINodeSStructures(syntaxIGraph); 
+		HashMap<String, SStructure> iNodeIdToSStructureMap = createSyntaxINodeSStructures(syntaxIGraph);
+		System.out.println("DEBUG iNodeIdToSStructureMap:"); // TODO: remove after debugging
+		for (String iNodeId : iNodeIdToSStructureMap.keySet()) {
+			SStructure sStructure = iNodeIdToSStructureMap.get(iNodeId);
+			System.out.println("\tINode ID "+iNodeId+" --> SStructure ID: "+sStructure.getId());
+		}
 		
 		// FIXME: IGraph.getRoots() is broken, so we got to create/add our own root for now
 		SStructure rootSStructure = SaltFactory.eINSTANCE.createSStructure();
