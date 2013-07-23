@@ -219,32 +219,26 @@ public class SaltWriter {
 												 SDocument sDocument,
 												 HashMap<String,List<String>> regionIdsToTokenIdsMap) throws GrafException {
 
+//		System.out.println("DEBUG addSSpansToSDocument:");
 		SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
 		HashMap<String, List<String>> iNodeIdsToSNodeIdsMap = new HashMap<String, List<String>>();
 		
 		Collection<INode> iNodes = iDocumentGraph.getNodes();	
 		for (INode iNode : iNodes) {
 			List<IRegion> iRegionsCoveredByINode = getIRegionsCoveredByINode(iNode, sDocumentGraph);
-			if (iRegionsCoveredByINode.size() == 0) {
+			if (iRegionsCoveredByINode.isEmpty() && GrafReader.isFloatingNode(iNode)) {
 				// in GrAF, it is allowed to have nodes that have neither
 				// outgoing edges nor links to regions of primary text!
-				System.out.println("DEBUG addSSpansToSDocument:");
-		
-				// the INode doesn't cover any primary text, therefore we have
-				// to find the floating nodes it covers and add fake tokens to the document
-				List<INode> floatingNodes = GrafReader.findOutboundConnectedFloatingNodes(iNode);
-				System.out.println("\tit covers these floating nodes:");
-				for (INode floatingNode : floatingNodes) {
-					int[] offsets = GrafReader.getFloatingNodeOffsets(iDocumentGraph, floatingNode);
-					String regionId = "floating-node-"+String.valueOf(floatingNodeCount);
-					STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
-					String annoSpaceName = floatingNode.getAnnotation().getAnnotationSpace().getName();
-					SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
-					
-					// FIXME: don't try to add the same fake token twice (can happen b/c of iRegionsCoveredByINode.size() == 0)
-					addTokenToDocument(offsets[0], offsets[1], sTextualDS, sDocument, regionLayer, regionId);
-					floatingNodeCount++;
-				}
+				int[] offsets = GrafReader.getFloatingNodeOffsets(iDocumentGraph, iNode);
+				String annoSpaceName = iNode.getAnnotation().getAnnotationSpace().getName();
+				SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
+				String regionId = "floating-"+regionLayer.getSName()+"-node-"+String.valueOf(floatingNodeCount);
+
+				String fakeTokenId = addTokenToDocument(offsets[0], offsets[1],
+										sDocument, regionLayer, regionId);
+				iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(fakeTokenId));
+//				System.out.println("\tINode ID "+iNode.getId()+" --> SNode ID "+fakeTokenId);
+				floatingNodeCount++;
 			}
 			else if (iRegionsCoveredByINode.size() == 1) {
 				String coveredIRegionId = iRegionsCoveredByINode.get(0).getId();
@@ -267,6 +261,8 @@ public class SaltWriter {
 				iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(sSpanId)); 
 				// using a list here to make the map usable for both SSpanIDs as well as STokenIDs
 			}
+			else {throw new GrAFImporterException("INode "+iNode.getId()+" doesn't cover"
+					+ "any IRegions but is not a floating node either!");}
 		}
 		return iNodeIdsToSNodeIdsMap;
 	}
