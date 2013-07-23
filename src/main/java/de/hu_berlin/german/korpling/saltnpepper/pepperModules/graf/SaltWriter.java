@@ -436,6 +436,7 @@ public class SaltWriter {
 				// for leaf nodes (here: tokens).
 				SStructure syntaxSStructure = SaltFactory.eINSTANCE.createSStructure();
 				syntaxSStructure.setSName(syntaxINode.getId());
+				syntaxSStructure.setSId(syntaxINode.getId());
 				addAnnotationsToSNode(syntaxINode, syntaxSStructure);
 					
 //				syntaxSStructure.createSAnnotation(arg0, arg1, arg2)
