@@ -3,15 +3,11 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
 import static java.util.Arrays.asList;
 
 import javax.xml.xpath.XPathExpressionException;
@@ -28,11 +24,6 @@ import org.xces.graf.io.dom.DocumentHeader;
 import org.xces.graf.io.dom.ResourceHeader;
 import org.xces.graf.util.GraphUtils;
 import org.xml.sax.SAXException;
-
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Ordering;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFExporterException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
@@ -178,15 +169,7 @@ public class GrafReader {
 	 *  MASC corpus, but is not part of the GrAF ISO standard! */
 	public static List<INode> getOutboundConnectedNodes(INode node) {
 		List<IEdge> outEdges = node.getOutEdges();
-		// sort edges in ascending order of their string IDs
-		// source: http://stackoverflow.com/a/3612334
-		Collections.sort(outEdges, Ordering.natural().onResultOf(
-			    new Function<IEdge, String>() {
-			      public String apply(IEdge from) {
-			        return from.getId();
-			      }
-			    }));
-		
+		Collections.sort(outEdges, new ElementSortByID());
 		List<INode> connectedNodes = new ArrayList<INode>();
 		for (IEdge outEdge : outEdges) {
 			connectedNodes.add(outEdge.getTo());
