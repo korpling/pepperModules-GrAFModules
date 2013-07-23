@@ -34,7 +34,7 @@ import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.SaltWriter;
  * @author arne
  *
  */
-public class PTBTracesTest {
+public class FloatingNodesTest {
 
 	/** find all "f.ptb" annotated documents that don't have Trace nodes and other weird stuff
 	 * @param args
@@ -44,8 +44,7 @@ public class PTBTracesTest {
 	 * @throws SAXException 
 	 */
 	public static void main(String[] args) throws XPathExpressionException, GrafException, SAXException, IOException {
-		// TODO Auto-generated method stub
-		String corpusPath = "/home/arne/corpora/masc_one/";
+		String corpusPath = System.getProperty("user.home").toString()+"/corpora/masc_one/";
 		File headerFile = new File(corpusPath, "resource-header.xml");
 		ResourceHeader rscHeader = new ResourceHeader(headerFile);
 
