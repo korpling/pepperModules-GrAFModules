@@ -34,20 +34,24 @@ public class SaltReader {
 
 
 	
-	/** returns the portion of the primary text represented by an SNode (or one
-	 *  of its subclasses, e.g. SToken, SSpan and SStructure).
+	/** returns the portion of the primary text represented by an SNode 
+	 *  (e.g. and SToken, SSpan or SStructure), or null otherwise.
 	 *
-	 *  TODO: ask Florian about this mess!
+	 *  TODO: ask Florian to simplify his API
 	 *  What do STYPE_NAME and STYPE_NAME.STEXT_OVERLAPPING_RELATION mean? 
-	 *  sDocumentGraph.getOverlappedDSSequences(sNode, interestingRelations).get(0) WTF? */
+	 *  sDocumentGraph.getOverlappedDSSequences(sNode, interestingRelations).get(0), srsly? */
 	public static String getPrimaryTextSequence(SNode sNode, SDocumentGraph sDocumentGraph) {
 		// Florian: only search for sequences by traversing relations inheriting text
 		EList<STYPE_NAME> interestingRelations = new BasicEList<STYPE_NAME>();
 		interestingRelations.add(STYPE_NAME.STEXT_OVERLAPPING_RELATION);
-		// Florian: first SDataSource, because in this example, we use only one SDataSource 
-		SDataSourceSequence sequence = sDocumentGraph.getOverlappedDSSequences(sNode, interestingRelations).get(0);
-		String primaryText = sequence.getSSequentialDS().getSData().toString();
-		return primaryText.substring(sequence.getSStart(), sequence.getSEnd());
+		// we'll use the first (and only) SDataSource 
+		EList<SDataSourceSequence> overlappedDSSequences = sDocumentGraph.getOverlappedDSSequences(sNode, interestingRelations);
+		if (!overlappedDSSequences.isEmpty()) {
+			SDataSourceSequence firstSequence = overlappedDSSequences.get(0);
+			String primaryText = firstSequence.getSSequentialDS().getSData().toString();
+			return primaryText.substring(firstSequence.getSStart(), firstSequence.getSEnd());			
+		}
+		else {return null;}
 	}
 
 
