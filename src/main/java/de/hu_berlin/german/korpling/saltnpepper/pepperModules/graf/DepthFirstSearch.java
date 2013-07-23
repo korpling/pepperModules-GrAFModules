@@ -22,9 +22,7 @@ public class DepthFirstSearch {
 		visited = new boolean[graph.getNodeSetSize()];
 		nodeIdToOrderedNodeNumberMap = new HashMap<String, Integer>();
 		OrderedNodeNumberToNodeIdMap = new HashMap<Integer, String>();
-//		System.out.println("\n\ninitialize DepthFirstSearch with sourceNode "+floatingNode.getId());
 		INode rootNode = GrafReader.getRootNodeFromNode(floatingNode, graph);
-		System.out.println("\troot node: "+rootNode.getId());
 		dfs(graph, rootNode);
 	}
 	
