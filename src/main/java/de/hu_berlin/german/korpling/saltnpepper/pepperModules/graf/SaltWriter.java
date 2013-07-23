@@ -188,6 +188,18 @@ public class SaltWriter {
 	}
 	
 	
+	/** adds an SSpan to an SDocument and returns the SSpan ID. */
+	public static String addSSpanToSDocument(List<SToken> sTokens,
+											SDocument sDocument,
+											List<SLayer> sLayers) {
+		EList<SToken> sTokensEList = new BasicEList<SToken>(sTokens);
+		// createSSpan only accepts ELists, not Lists
+		SSpan sSpan = sDocument.getSDocumentGraph().createSSpan(sTokensEList);
+		for (SLayer layer : sLayers) {
+			layer.getSNodes().add(sSpan);
+		}
+		return sSpan.getId();
+	}
 
 	
 	/** Adds all SSpans to an SDocument.
@@ -333,21 +345,6 @@ public class SaltWriter {
 		return iRegionsCoveredByINode;
 	}
 	
-
-
-	/** adds an SSpan to an SDocument and returns the SSpan ID. */
-	public static String addSSpanToSDocument(List<SToken> sTokens, 
-											SDocument sDocument, 
-											List<SLayer> sLayers) {
-		EList<SToken> sTokensEList = new BasicEList<SToken>(sTokens);
-		// createSSpan only accepts ELists, not Lists 
-		SSpan sSpan = sDocument.getSDocumentGraph().createSSpan(sTokensEList);
-		for (SLayer layer : sLayers) {
-			layer.getSNodes().add(sSpan);
-		}
-		return sSpan.getId();
-	}
-
 	
 	/** takes an IRegion and adds it as an SToken/SNode to the SDocumentGraph of an SDocument. 
 	 *  @param start - token onset in the primary text
