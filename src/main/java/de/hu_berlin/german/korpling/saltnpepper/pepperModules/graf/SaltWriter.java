@@ -346,16 +346,19 @@ public class SaltWriter {
 	}
 	
 	
-	/** takes an IRegion and adds it as an SToken/SNode to the SDocumentGraph of an SDocument. 
-	 *  @param start - token onset in the primary text
-	 *  @param end - token offset 
+	/** creates an SToken and adds it to the SDocumentGraph of an SDocument.
+	 *  the parameters needed are usually retrieved from an IRegion.
+	 *
+	 *  @param onset - token onset in the primary text
+	 *  @param offset - token offset
 	 *  @param STextualDS - contains the primary text
 	 *  @param SLayer - the annotation layer that the token is added to (e.g. "f.seg")
 	 *  @param regionId - the IRegion's id (e.g. 'seg-r91'), will be used to name the SToken 
 	 *  
 	 *  @return the ID of the created token */
-	public static String addTokenToDocument(int start, int end, STextualDS sTextualDS, 
-										  SDocument sDocument, SLayer layer, String regionId){
+	public static String addTokenToDocument(int onset, int offset,
+			SDocument sDocument, SLayer layer, String regionId) {
+		STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
 		SToken sToken = SaltFactory.eINSTANCE.createSToken();
 		sToken.setSName(regionId);
 		sDocument.getSDocumentGraph().addSNode(sToken);
@@ -363,8 +366,8 @@ public class SaltWriter {
 		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
 		sTextRel.setSToken(sToken);
 		sTextRel.setSTextualDS(sTextualDS);
-		sTextRel.setSStart(start);
-		sTextRel.setSEnd(end);
+		sTextRel.setSStart(onset);
+		sTextRel.setSEnd(offset);
 		sDocument.getSDocumentGraph().addSRelation(sTextRel);
 		return sToken.getSId();
 	}		
