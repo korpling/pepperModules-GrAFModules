@@ -209,8 +209,9 @@ public class SaltGraphInfo {
 						 + " node id: " + sNode.getId());
 		System.out.println("\t\tlabels: " + sNode.getLabels().size() 
 				         + " annotations: " + sNode.getSAnnotations().size()
-				         + " features: " + sNode.getSFeatures().size());
-		System.out.println("\t\tprimary text: " + SaltReader.getPrimaryTextSequence(sNode, sDocumentGraph));
+				         + " features: " + sNode.getSFeatures().size()
+				         + " layers: " + sNode.getSLayers().size());
+//		System.out.println("\t\tprimary text: " + SaltReader.getPrimaryTextSequence(sNode, sDocumentGraph));
 	}
 
 	
