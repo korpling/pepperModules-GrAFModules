@@ -169,7 +169,7 @@ public class GrafReader {
 	 *  MASC corpus, but is not part of the GrAF ISO standard! */
 	public static List<INode> getOutboundConnectedNodes(INode node) {
 		List<IEdge> outEdges = node.getOutEdges();
-		Collections.sort(outEdges, new ElementSortByID());
+		Collections.sort(outEdges, new GrafElementSortByID());
 		List<INode> connectedNodes = new ArrayList<INode>();
 		for (IEdge outEdge : outEdges) {
 			connectedNodes.add(outEdge.getTo());

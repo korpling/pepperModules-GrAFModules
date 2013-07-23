@@ -8,7 +8,7 @@ import org.xces.graf.api.IIdentifiable;
  * 
  *  FIXME: I'd rather use guava's Ordering.natural instead of writing yet another
  *  class, but OSGI chokes on that dependency. */
-public class ElementSortByID implements Comparator<IIdentifiable>{
+public class GrafElementSortByID implements Comparator<IIdentifiable>{
 	@Override
 	public int compare(IIdentifiable identifiable1, IIdentifiable identifiable2) {
 		return identifiable1.getId().compareTo(identifiable2.getId());
