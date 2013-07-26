@@ -339,10 +339,12 @@ public class GrafReader {
 	
 	/** returns the string onset and offset of a floating node. since a 
 	 *  floating node doesn't cover any primary text, fake offsets will
-	 *  be generated. It will cover zero characters, located at the beginning
-	 *  of the primary text covered by the next leaf node. If there's no
-	 *  succeeding leaf node which covers primary text, it will be located at
-	 *  the end of the primary text covered by the preceding leaf node.
+	 *  be generated.
+	 *  It will cover zero characters, located at the beginning
+	 *  of the primary text covered by the next leaf node.
+	 *  If there's no succeeding leaf node which covers primary text,
+	 *  it will be located at the end of the primary text covered by the
+	 *  preceding leaf node.
 	 * @throws GrafException */
 	public static int[] getFloatingNodeOffsets(IGraph graph, INode floatingNode) throws GrafException {
 			DepthFirstSearch floatSearch = new DepthFirstSearch(graph, floatingNode);
@@ -357,7 +359,7 @@ public class GrafReader {
 				return new int[] {predecessorOffsets[1], predecessorOffsets[1]};
 			}
 			else {
-				throw new GrAFExporterException("Can't produce fake offsets for floating node "+floatingNode.getId());
+				throw new GrAFImporterException("Can't produce fake offsets for floating node "+floatingNode.getId());
 			}
 	}
 	
