@@ -94,7 +94,7 @@ public class GrafGraphInfo {
 			printNodeInfo(node, graph);
 		}
 		
-		Collection<IRegion> regions = GrafReader.getRegions(graph);;
+		Collection<IRegion> regions = graph.getRegions();
 		System.out.println("regions: " + regions.size());
 //		for (IRegion region : regions) {
 //			printRegionInfo(region, graph);
@@ -223,7 +223,7 @@ public class GrafGraphInfo {
 	/** returns a <String, int> map that contains the names of annotation 
 	 *  spaces as keys and the number of regions they annotate as values */
 	public static HashMap<String, Integer> getRegionCountPerAnnoSpace(IGraph iGraph) {
-		Collection<IRegion> regions = GrafReader.getRegions(iGraph);
+		Collection<IRegion> regions = iGraph.getRegions();
 		HashMap<String, Integer> annoSpaceRegionCountMap = new HashMap<String, Integer>();
 		
 		for (IRegion region : regions) {
@@ -244,7 +244,7 @@ public class GrafGraphInfo {
 	/** prints the ID and primary text of all IRegions present in a 
 	 *  given annotation space. */
 	public static void printRegionsOfAnnoSpace(IGraph iGraph, String annoSpace) throws GrafException {
-		for (IRegion region : GrafReader.getRegions(iGraph)) {
+		for (IRegion region : iGraph.getRegions()) {
 			List<String> regionAnnoSpaces = GrafReader.getAnnoSpaceNamesFromRegion(region);
 			if (regionAnnoSpaces.contains(annoSpace)) {
 				String primaryTextSequence = GrafReader.getPrimaryTextSequence(region, iGraph);

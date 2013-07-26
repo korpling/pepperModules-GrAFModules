@@ -157,7 +157,7 @@ public class SaltWriter {
 		// add all IRegions from an IGraph to an SDocument. create a map 
 		// (IRegion ID --> list of SToken IDs)
 		HashMap<String, List<String>> regionIdToTokenIdsMap = new HashMap<String, List<String>>();
-		for (IRegion iRegion : GrafReader.getRegions(iDocumentGraph)) {
+		for (IRegion iRegion : iDocumentGraph.getRegions()) {
 			String regionId = iRegion.getId();
 			List<String> tokenIds = addIRegionToSDocument(iRegion, sDocument, annoSpaceSLayerMap);
 			regionIdToTokenIdsMap.put(regionId, tokenIds);				
@@ -321,7 +321,7 @@ public class SaltWriter {
 	 *  @return a map from IRegion ID to a list of INode IDs*/
 	public static HashMap<String, List<String>> getIRegionIdToINodeIdsMap(IGraph iDocumentGraph) {
 		HashMap<String, List<String>> iRegionToINodesMap = new HashMap<String, List<String>>();
-		Collection<IRegion> regions = GrafReader.getRegions(iDocumentGraph);
+		Collection<IRegion> regions = iDocumentGraph.getRegions();
 		for (IRegion region : regions) {
 			List<INode> nodes = region.getNodes();
 			List<String> nodeIds = new ArrayList<String>();

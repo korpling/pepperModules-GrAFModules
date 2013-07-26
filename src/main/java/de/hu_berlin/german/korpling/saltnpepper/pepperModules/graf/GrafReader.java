@@ -208,22 +208,6 @@ public class GrafReader {
 		return getPrimaryTextSequence(nodeOffsets[0], nodeOffsets[1], iGraph);
 	}	
 
-	/** replacement of IGraph.getRegions(), which doesn't get updated after
-	 *  new ILinks/IRegions are added to the IGraph.
-	 *
-	 *  FIXME: Told Keith about this, waiting for reply. //AN 2013-07-26 */
-	public static List<IRegion> getRegions(IGraph iGraph) {
-		List<IRegion> regions = new ArrayList<IRegion>();
-		for (INode iNode : iGraph.getNodes()) {
-			if (GrafReader.isLeafNode(iNode)) {
-				for (ILink link : iNode.getLinks()) {
-					regions.addAll(link.getRegions());
-				}
-			}
-		}
-		return regions;
-	}
-
 	/** returns the IRegions belonging to a given annotation type */
 	public static List<IRegion> getRegionsOfAnnoSpace(IGraph iGraph, String annoSpace) throws GrafException {
 		return getRegionsOfAnnoSpaces(iGraph, asList(annoSpace));
@@ -232,7 +216,7 @@ public class GrafReader {
 	/** returns the IRegions belonging to one of the given annotation types */
 	public static List<IRegion> getRegionsOfAnnoSpaces(IGraph iGraph, List<String> annoSpaces) throws GrafException {
 		List<IRegion> filteredRegions = new ArrayList<IRegion>();
-		for (IRegion region : GrafReader.getRegions(iGraph)) {
+		for (IRegion region : iGraph.getRegions()) {
 			List<INode> nodes = region.getNodes();
 			for (INode node : nodes) {
 				String nodeAnnoSpace = node.getAnnotation().getAnnotationSpace().getName();
