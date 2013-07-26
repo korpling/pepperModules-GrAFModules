@@ -275,41 +275,23 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 											sNodeIdToSNodeMap, 
 											sDocument);
 										
-//					System.out.println("DEBUGGING GrAFImporter.start():");
-////					for (INode iNode : syntaxIGraph.getNodes()) {
-//					for (INode iNode : iGraph.getNodes()) {
-//						if (GrafReader.isFloatingNode(iNode)) {
-//							String iNodeId = iNode.getId();
-//							System.out.println("\tINode "+iNodeId+" --> SNode "+iNodeIdToSNodeIdsMap.get(iNodeId));
-//							DepthFirstSearch floatSearch = new DepthFirstSearch(iGraph, iNode);
-//							INode precedingLeafNode = floatSearch.getPrecedingLeafNode(iGraph, iNode);
-//							if (precedingLeafNode != null) {
-//								System.out.println("\t\tpreceding leaf node: "+floatSearch.getPrecedingLeafNode(iGraph, iNode).getId());						
-//							}
-//							else { System.out.println("\t\t there's no preceding leaf node!"); }
-//							INode succeedingLeafNode = floatSearch.getSucceedingLeafNode(iGraph, iNode);
-//							if (succeedingLeafNode != null) {
-//								System.out.println("\t\tsucceeding leaf node: "+floatSearch.getSucceedingLeafNode(iGraph, iNode).getId());
-//							}
-//							else {System.out.println("\t\t there's no succeeding leaf node!");}
-//						}
-//					}
+
 				
-				// TODO: test if all SNodes cover some primary text
-				// cannot map SStructuredNode object 'salt:/MASC_labels_
-				// not_namespaces/MASC1-00030/MASC1-00030_graph#ptb-n00229' to ra-node, 
-				// because it does not overlap a text.
-//				SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
-//				// convert EList to List and sort it
-//				List<SNode> sNodes = new ArrayList<SNode>();
-//				for (SNode node : sDocumentGraph.getSNodes()) { sNodes.add(node); }
-//				Collections.sort(sNodes, new SaltElementSortByID());
-//								
-//				for (SNode sNode : sNodes) {
-//					SaltGraphInfo.printSNodeInfo(sNode, sDocumentGraph);
-//					SaltGraphInfo.printNodeInfo(sNode);
-//					String nodePrimaryText = SaltReader.getPrimaryTextSequence(sNode, sDocumentGraph);
-//				}
+					// TODO: test if all SNodes cover some primary text
+					// cannot map SStructuredNode object 'salt:/MASC_labels_
+					// not_namespaces/MASC1-00030/MASC1-00030_graph#ptb-n00229' to ra-node, 
+					// because it does not overlap a text.
+//					SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
+//					// convert EList to List and sort it
+//					List<SNode> sNodes = new ArrayList<SNode>();
+//					for (SNode node : sDocumentGraph.getSNodes()) { sNodes.add(node); }
+//					Collections.sort(sNodes, new SaltElementSortByID());
+//									
+//					for (SNode sNode : sNodes) {
+//						String nodePrimaryText = SaltReader.getPrimaryTextSequence(sNode, sDocumentGraph);
+//						System.out.println("SNode ID: "+sNode.getId()+" covers this primary text sequence:");
+//						System.out.println("\t"+nodePrimaryText);
+//					}
 				}
 				
 				
