@@ -265,12 +265,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 																	iNodeIdToSNodeIdsMap, 
 																	sDocument);
 					
-					// adds syntax structures from the IGraph's syntax annotation
-					// level to SDocument
-					IGraph syntaxIGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath, ((GrAFImporterProperties)this.getProperties()).getSyntaxLayer());
-					
-//					GrafGraphInfo.printSyntaxTreeRoots(syntaxIGraph);
-					SaltWriter.addSyntaxToSDocument(syntaxIGraph, 
+//					GrafGraphInfo.printSyntaxTreeRoots(fixedIGraph);
+					SaltWriter.addSyntaxToSDocument(fixedIGraph,
 											iNodeIdToSNodeIdsMap, 
 											sNodeIdToSNodeMap, 
 											sDocument);
