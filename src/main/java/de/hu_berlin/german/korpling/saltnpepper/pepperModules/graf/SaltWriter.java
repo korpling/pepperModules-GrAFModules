@@ -219,54 +219,88 @@ public class SaltWriter {
 												 SDocument sDocument,
 												 HashMap<String,List<String>> regionIdsToTokenIdsMap) throws GrafException {
 
-//		System.out.println("DEBUG addSSpansToSDocument:");
 		SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
 		HashMap<String, List<String>> iNodeIdsToSNodeIdsMap = new HashMap<String, List<String>>();
 		
-		Collection<INode> iNodes = iDocumentGraph.getNodes();	
-		for (INode iNode : iNodes) {
+		for (INode iNode : iDocumentGraph.getNodes()) {
 			List<IRegion> iRegionsCoveredByINode = getIRegionsCoveredByINode(iNode, sDocumentGraph);
-			if (iRegionsCoveredByINode.isEmpty() && GrafReader.isFloatingNode(iNode)) {
-				// in GrAF, it is allowed to have nodes that have neither
-				// outgoing edges nor links to regions of primary text!
-				int[] offsets = GrafReader.getFloatingNodeOffsets(iDocumentGraph, iNode);
-				String annoSpaceName = iNode.getAnnotation().getAnnotationSpace().getName();
-				SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
-				String regionId = "floating-"+regionLayer.getSName()+"-node-"+String.valueOf(floatingNodeCount);
-
-				String fakeTokenId = addTokenToDocument(offsets[0], offsets[1],
-										sDocument, regionLayer, regionId);
-				iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(fakeTokenId));
-//				System.out.println("\tINode ID "+iNode.getId()+" --> SNode ID "+fakeTokenId);
-				floatingNodeCount++;
+			if (iRegionsCoveredByINode.isEmpty()) {
+				if (GrafReader.isFloatingNode(iNode)) {
+					addFloatingNodeToSDocument(iDocumentGraph, sDocument, iNode, iNodeIdsToSNodeIdsMap);
+				}
+				else { // the mother node of a floating node often doesn't cover any regions
+					// throw new UnsupportedOperationException
+					System.out.println("DEBUG: INode "+iNode.getId()+" doesn't cover"
+							+ " any IRegions but is not a floating node either!"
+							+ " Do we need to handle it separately?");
+				}
 			}
 			else if (iRegionsCoveredByINode.size() == 1) {
 				String coveredIRegionId = iRegionsCoveredByINode.get(0).getId();
-				if (regionIdsToTokenIdsMap.containsKey(coveredIRegionId)) {
-					List<String> coveredSTokenIds = regionIdsToTokenIdsMap.get(coveredIRegionId);
-					iNodeIdsToSNodeIdsMap.put(iNode.getId(), coveredSTokenIds);
-				}
-				else {
-					throw new GrAFImporterException("IRegion "+coveredIRegionId+" can't be found in regionIdsToTokenIdsMap.");
-				}
+				addRegionToINodeSNodeMap(coveredIRegionId, iNode,
+						regionIdsToTokenIdsMap, iNodeIdsToSNodeIdsMap);
 			}
 			else if (iRegionsCoveredByINode.size() > 1) {
-			// IRegions are already added to the document, we just need to add
-		    // SSpans for INodes that cover more than one IRegion
-				List<SToken> tokens = SaltWriter.mapRegionsToTokens(iRegionsCoveredByINode,
-														regionIdsToTokenIdsMap, 
-														sDocumentGraph);
-				List<SLayer> sLayers = SaltWriter.mapTokensToSLayers(tokens);
-				String sSpanId = addSSpanToSDocument(tokens, sDocument, sLayers);
-				iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(sSpanId)); 
-				// using a list here to make the map usable for both SSpanIDs as well as STokenIDs
+				addRegionsToINodeSNodeMap(iNode, iRegionsCoveredByINode, 
+						iNodeIdsToSNodeIdsMap, regionIdsToTokenIdsMap, sDocument);
 			}
-			else {throw new GrAFImporterException("INode "+iNode.getId()+" doesn't cover"
-					+ "any IRegions but is not a floating node either!");}
 		}
 		return iNodeIdsToSNodeIdsMap;
 	}
 
+	/** takes a floating INode (a GrAF node that has neither outgoing edges nor
+	 *  links to regions of primary text), creates a fake SToken for it, adds
+	 *  it to the SDocument and to the map (INode IDs --> SNode IDs).*/
+	public static void addFloatingNodeToSDocument(IGraph iDocumentGraph, 
+						SDocument sDocument, INode floatingINode, 
+						HashMap<String, List<String>> iNodeIdsToSNodeIdsMap) throws GrafException {
+		// in GrAF, it is allowed to have nodes that have neither
+		// outgoing edges nor links to regions of primary text!
+		int[] offsets = GrafReader.getFloatingNodeOffsets(iDocumentGraph, floatingINode);
+		String annoSpaceName = floatingINode.getAnnotation().getAnnotationSpace().getName();
+		SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
+		String regionId = "floating-"+regionLayer.getSName()+"-node-"+String.valueOf(floatingNodeCount);
+
+		String fakeTokenId = addTokenToDocument(offsets[0], offsets[1],
+								sDocument, regionLayer, regionId);
+		iNodeIdsToSNodeIdsMap.put(floatingINode.getId(), asList(fakeTokenId));
+//		System.out.println("\tINode ID "+iNode.getId()+" --> SNode ID "+fakeTokenId);
+		floatingNodeCount++;		
+	}
+
+	/** adds an INode that only covers one IRegion to the INode IDs --> SNode IDs map.*/
+	public static void addRegionToINodeSNodeMap(String coveredIRegionId,
+						INode iNode,
+						HashMap<String,List<String>> regionIdsToTokenIdsMap,
+						HashMap<String, List<String>> iNodeIdsToSNodeIdsMap) {
+		if (regionIdsToTokenIdsMap.containsKey(coveredIRegionId)) {
+			List<String> coveredSTokenIds = regionIdsToTokenIdsMap.get(coveredIRegionId);
+			iNodeIdsToSNodeIdsMap.put(iNode.getId(), coveredSTokenIds);
+		}
+		else {
+			throw new GrAFImporterException("IRegion "+coveredIRegionId+" can't be found in regionIdsToTokenIdsMap.");
+		}		
+	}
+	
+	/** adds an INode that covers multiple IRegions to the INode IDs --> SNode IDs map
+	 *  and also adds SSpans to the SDocument that cover the same primary text
+	 *  as those IRegions.*/
+	public static void addRegionsToINodeSNodeMap(INode iNode, 
+			List<IRegion> iRegionsCoveredByINode, 
+			HashMap<String, List<String>> iNodeIdsToSNodeIdsMap, 
+			HashMap<String,List<String>> regionIdsToTokenIdsMap, 
+			SDocument sDocument) {
+	// IRegions are already added to the document, we just need to add
+    // SSpans for INodes that cover more than one IRegion
+		List<SToken> tokens = mapRegionsToTokens(iRegionsCoveredByINode,
+												regionIdsToTokenIdsMap, 
+												sDocument.getSDocumentGraph());
+		List<SLayer> sLayers = SaltWriter.mapTokensToSLayers(tokens);
+		String sSpanId = addSSpanToSDocument(tokens, sDocument, sLayers);
+		iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(sSpanId)); 
+		// using a list here to make the map usable for both SSpanIDs as well as STokenIDs
+	}
+	
 	/** creates a map from INodes to the IRegions they link to
 	 *  @return a map from INode ID to a list of IRegion IDs */
 	public static HashMap<String, List<String>> getINodeIdToIRegionIdsMap(IGraph iDocumentGraph,
