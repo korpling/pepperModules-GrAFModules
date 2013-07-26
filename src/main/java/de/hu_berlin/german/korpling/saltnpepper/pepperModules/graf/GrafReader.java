@@ -369,10 +369,9 @@ public class GrafReader {
 		Collection<INode> iNodes = iGraph.getNodes();
 		List<INode> rootNodes = new ArrayList<INode>();
 		for (INode iNode : iNodes) {
-			List<IEdge> inEdges = iNode.getInEdges();
-			for (IEdge inEdge : inEdges) {
-				INode fromNode = inEdge.getFrom();
-				if (fromNode.getInEdges().isEmpty()) {
+			for (IEdge inEdge : iNode.getInEdges()) {
+				INode motherNode = inEdge.getFrom();
+				if (motherNode.getInEdges().isEmpty() && !iNode.getOutEdges().isEmpty()) {
 					rootNodes.add(iNode);
 				}
 			}
