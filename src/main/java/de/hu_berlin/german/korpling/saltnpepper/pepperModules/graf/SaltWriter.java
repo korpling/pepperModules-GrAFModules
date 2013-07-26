@@ -514,59 +514,96 @@ public class SaltWriter {
 			HashMap<String,List<String>> iNodeIDsToSNodeIdsMap,
 			HashMap<String,SNode> sNodeIdToSNodeMap) throws GrafException {
 
-		System.out.println("DEBUG addSyntaxNodeDomRelsToDocGraph");
+		System.out.println("DEBUG addSyntaxNodeDomRelsToDocGraph ...");
 		for (INode syntaxINode : syntaxIGraph.getNodes()) {
 			if (syntaxINode.getOutEdges().size() > 0) {
-
 				SStructure sourceSStructure = iNodeIdToSStructureMap.get(syntaxINode.getId());
 				
+				// TODO: check why the document graph doesn't contain certain SStructures
 				if (!docGraph.getNodes().contains(sourceSStructure)) {
 					docGraph.addSNode(sourceSStructure);
 				}
 				
-				List<INode> connectedSyntaxINodes = GrafReader.getOutboundConnectedNodes(syntaxINode);
-				for (INode connectedSyntaxINode : connectedSyntaxINodes) {
-					String dominatedINodeId = connectedSyntaxINode.getId();
-
-					// don't add domrels to "tok" nodes, but to the tokens
-					// they represent
+				for (INode connectedSyntaxINode : GrafReader.getOutboundConnectedNodes(syntaxINode)) {
+					// add dominance relation between a syntax node (e.g. one 
+					// that represents a syntactic categories) and a token node
 					if (connectedSyntaxINode.getOutEdges().size() == 0) {
-						List<ILink> links = connectedSyntaxINode.getLinks();
-						if (links.size() > 0) {
-							for (ILink link : links) {
-								Iterable<IRegion> regions = link.regions();
-								for (IRegion region : regions) {
-									EList<SToken> dominatedSTokens = GrafReader.getSTokensFromIRegions(syntaxIGraph,
-																					region, docGraph);
-									for (SToken dominatedSToken : dominatedSTokens) {
-										docGraph.addSNode(sourceSStructure, dominatedSToken, domRel);
-									}
-								}
-							}							
+						List<ILink> linksToTokenRegions = connectedSyntaxINode.getLinks();
+						if (linksToTokenRegions.size() > 0) {
+							addDomRelToNonFloatingSToken(syntaxIGraph, docGraph, sourceSStructure, linksToTokenRegions);
+						}
+						else {
+							System.out.println("\tDEBUG floating INode "+connectedSyntaxINode.getId());
+							System.out.println("\t\t is in iNodeIDsToSNodeIdsMap: "+iNodeIDsToSNodeIdsMap.get(connectedSyntaxINode));
+							System.out.println("\t\t is in iNodeIdToSStructureMap: "+iNodeIdToSStructureMap.get(connectedSyntaxINode));
+							addDomRelToFloatingSToken(syntaxIGraph, docGraph, sourceSStructure, connectedSyntaxINode);
 						}
 					}
 				
 					else { // handle dominated nodes with outgoing edges
-						if (iNodeIdToSStructureMap.containsKey(dominatedINodeId)) {
-							SStructure dominatedSStructure = iNodeIdToSStructureMap.get(dominatedINodeId);
-							docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
-						} 
-						else {
-							List<String> dominatedSElementIds = iNodeIDsToSNodeIdsMap.get(dominatedINodeId);
-							for (String dominatedSElementId : dominatedSElementIds) {
-								if (sNodeIdToSNodeMap.containsKey(dominatedSElementId)) {
-									SNode dominatedSNode = sNodeIdToSNodeMap.get(dominatedSElementId);
-									docGraph.addSNode(sourceSStructure, dominatedSNode, domRel);
-								}
-								else {
-									System.out.println("DEBUG: DAMN, can't find element '"+dominatedSElementId+"' in token map or span map!1!!");
-								}
-							}
-						}						
+						addDomRelBetweenSyntaxNodes(docGraph, sourceSStructure, connectedSyntaxINode,
+								iNodeIdToSStructureMap, iNodeIDsToSNodeIdsMap, sNodeIdToSNodeMap);
 					}
 				}	
 			}
 		}
+	}
+	
+	/** add a dominance relation between two syntax nodes
+	 *  (i.e. not dominating tokens directly)*/
+	public static void addDomRelBetweenSyntaxNodes(SDocumentGraph docGraph, 
+			SStructure sourceSStructure, INode dominatedINode, 
+			HashMap<String,SStructure> iNodeIdToSStructureMap,
+			HashMap<String,List<String>> iNodeIDsToSNodeIdsMap,
+			HashMap<String,SNode> sNodeIdToSNodeMap) {
+		
+		String dominatedINodeId = dominatedINode.getId();
+		if (iNodeIdToSStructureMap.containsKey(dominatedINodeId)) {
+			SStructure dominatedSStructure = iNodeIdToSStructureMap.get(dominatedINodeId);
+			docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
+		} 
+		else { // TODO: check why iNodeIdToSStructureMap doesn't contain certain dominated INode IDs
+			List<String> dominatedSElementIds = iNodeIDsToSNodeIdsMap.get(dominatedINodeId);
+			for (String dominatedSElementId : dominatedSElementIds) {
+				if (sNodeIdToSNodeMap.containsKey(dominatedSElementId)) {
+					SNode dominatedSNode = sNodeIdToSNodeMap.get(dominatedSElementId);
+					docGraph.addSNode(sourceSStructure, dominatedSNode, domRel);
+				}
+				else {
+					throw new GrAFImporterException(" Can't find element '"
+						+dominatedSElementId+"' in token map or span map!1!!");
+				}
+			}
+		}		
+	}
+
+	/** add a dominance relation between a syntax node and a floating SToken node.
+	 *  TODO: implement method / merge it with addDomRelToNonFloatingSToken*/
+	public static void addDomRelToFloatingSToken(IGraph syntaxIGraph,
+			SDocumentGraph docGraph, SStructure sourceSStructure, INode connectedSyntaxINode) {
+		System.out.println("connected syntax INode "+connectedSyntaxINode.getId()
+				+" does neither have out edges nor links.");
+		throw new UnsupportedOperationException("TODO: METHOD NOT IMPLEMENTED, YET");
+//		docGraph.addSNode(sourceSStructure, connectedSyntaxINode, domRel);
+	}
+
+
+	/** adds a dominance relation from a syntax node to one or more token nodes.
+	 *  @param sourceSStructure - the SStructure (SNode) that dominates the token node
+	 *  @param linksToTokenRegions - list of ILinks to IRegions of primary text
+	 *  	that are equivalent to SToken nodes*/
+	public static void addDomRelToNonFloatingSToken(IGraph syntaxIGraph,
+						SDocumentGraph docGraph, SStructure sourceSStructure, 
+						List<ILink> linksToTokenRegions) throws GrafException {
+		for (ILink link : linksToTokenRegions) {
+			for (IRegion region : link.regions()) {
+				EList<SToken> dominatedSTokens = GrafReader.getSTokensFromIRegions(syntaxIGraph,
+																region, docGraph);
+				for (SToken dominatedSToken : dominatedSTokens) {
+					docGraph.addSNode(sourceSStructure, dominatedSToken, domRel);
+				}
+			}
+		}							
 	}
 	
 	/** reads the syntax trees from an IGraph (which must only contain the 
