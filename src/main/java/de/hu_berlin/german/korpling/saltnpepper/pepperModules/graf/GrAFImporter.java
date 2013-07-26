@@ -315,6 +315,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 				ILink linkToEmptyRegion = grafFactory.newLink();
 				linkToEmptyRegion.addTarget(emptyRegion);
 				iNode.addLink(linkToEmptyRegion);
+				iGraph.addRegion(emptyRegion);
 				floatingNodeCount++;
 			}
 		}
