@@ -37,6 +37,9 @@ import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IAnnotationSpace;
 import org.xces.graf.api.IGraph;
 import org.xces.graf.api.INode;
+import org.xces.graf.api.ILink;
+import org.xces.graf.api.IRegion;
+import org.xces.graf.impl.DefaultImplementation;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
@@ -252,6 +255,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String docHeaderPath = docIdDocHeaderMap.get(sDocName);
 
 					IGraph iGraph = GrafReader.getAnnoGraph(rscHeader, docHeaderPath);
+					IGraph fixedIGraph = repairFloatingNodes(iGraph);
+
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
 					
@@ -313,5 +318,28 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 				}
 			}
 		}//only if given sElementId belongs to an object of type SDocument or SCorpus
+	}
+
+	/** find floating nodes in an IGraph and link them to a fake region
+	 *  that covers an empty segment of primary text located between
+	 *  the preceding and succeeding segments of primary text.
+	 * @throws GrafException */
+	public static IGraph repairFloatingNodes(IGraph iGraph) throws GrafException {
+		DefaultImplementation grafFactory = new DefaultImplementation();
+
+		int floatingNodeCount = 0;
+		for (INode iNode : iGraph.getNodes()) {
+			if (GrafReader.isFloatingNode(iNode)) {
+				int[] floatingNodeOffsets = GrafReader.getFloatingNodeOffsets(iGraph, iNode);
+				IRegion emptyRegion = grafFactory.newRegion("seg-fake"+floatingNodeCount,
+													Long.valueOf(floatingNodeOffsets[0]),
+													Long.valueOf(floatingNodeOffsets[1]));
+				ILink linkToEmptyRegion = grafFactory.newLink();
+				linkToEmptyRegion.addTarget(emptyRegion);
+				iNode.addLink(linkToEmptyRegion);
+				floatingNodeCount++;
+			}
+		}
+		return iGraph;
 	}
 }
