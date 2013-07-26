@@ -447,8 +447,9 @@ public class SaltWriter {
 	}	
 
 
-	/** Creates a new SStructure for each INode in an f.ptb IGraph. Each
-	 *  SStructure represents a syntax node (S, NP etc.) and is annotated accordingly.
+	/** Creates a new SStructure for all INodes in an f.ptb IGraph that have outgoing
+	 *  edges. Each SStructure represents a syntax node (S, NP etc.) and is
+	 *  annotated accordingly.
 	 *  Returns a map from INode IDs to the corresponding SStructure.
 	 *  
 	 * 	@param syntaxIGraph - an IGraph that only contains the "f.ptb" 
@@ -477,11 +478,14 @@ public class SaltWriter {
 	}
 
 	/** adds dominance relations to the document graph (from the document graph
-	 *  root node to each syntax tree root node) */
+	 *  root node to each syntax tree root node)
+	 * @throws GrafException */
 	public static void addSyntaxTreeRootDomRelsToDocGraph(IGraph syntaxIGraph, 
 			SDocumentGraph docGraph, 
 			HashMap<String, SStructure> iNodeIdToSStructureMap,
-			SStructure rootSStructure) {
+			SStructure rootSStructure) throws GrafException {
+		System.out.println("DEBUG addSyntaxTreeRootDomRelsToDocGraph:");
+
 		for (INode treeRootINode : GrafReader.getRootNodes(syntaxIGraph))
 		{
 			String treeRootNodeId = treeRootINode.getId();
@@ -496,8 +500,9 @@ public class SaltWriter {
 				System.out.println("added domrel from root to " + dominatedSStructure.getId());
 			} 
 			else {
-				throw new NullPointerException("Can't add dominated SStructure"
-					+"to SDocumentGraph. It's not in iNodeIdToSStructureMap.");
+				GrafGraphInfo.printNodeInfo(treeRootINode, syntaxIGraph);
+//				throw new GrAFImporterException("tree root node '"+treeRootNodeId
+//						+"' is not in iNodeIdToSStructureMap.");
 			}
 		}		
 	}
