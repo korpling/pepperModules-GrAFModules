@@ -121,11 +121,19 @@ public class SaltWriter {
 		int endAnchor = Integer.parseInt( anchors.get(1).writeString() );
 
 		List<String> sTokenIds = new ArrayList<String>();
-		for (INode annoNode : iRegion.getNodes()) {
-			String annoSpaceName = annoNode.getAnnotation().getAnnotationSpace().getName();
-			SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
+		List<INode> annoNodes = iRegion.getNodes();
+		if (annoNodes.isEmpty()) { // there's a special SLayer for all unannotated regions
+			SLayer regionLayer = annoSpaceSLayerMap.get("not-annotated");
 			String sTokenId = addTokenToDocument(startAnchor, endAnchor, sDocument, regionLayer, iRegionId);
 			sTokenIds.add(sTokenId);
+		}
+		else { // if region is annotated by one or more nodes
+			for (INode annoNode : annoNodes) {
+				String annoSpaceName = annoNode.getAnnotation().getAnnotationSpace().getName();
+				SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
+				String sTokenId = addTokenToDocument(startAnchor, endAnchor, sDocument, regionLayer, iRegionId);
+				sTokenIds.add(sTokenId);
+			}			
 		}
 				
 		return sTokenIds; 	
@@ -148,11 +156,12 @@ public class SaltWriter {
 		annoSpaceSLayerMap = new HashMap<String, SLayer>();
 		for (IAnnotationSpace annoSpace : iDocumentGraph.getAnnotationSpaces()) {
 			String annoSpaceName = annoSpace.getName();
-			SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
-			annoLayer.setSName(annoSpaceName);
-			annoSpaceSLayerMap.put(annoSpaceName, annoLayer);
-			sDocument.getSDocumentGraph().addSLayer(annoLayer);
+			addSLayerToSDocument(sDocument, annoSpaceName);
 		}
+		
+		// add an additional SLayer that covers all IRegions that aren't annotated
+		String annoSpaceName = "not-annotated";
+		addSLayerToSDocument(sDocument, annoSpaceName);
 		
 		// add all IRegions from an IGraph to an SDocument. create a map 
 		// (IRegion ID --> list of SToken IDs)
@@ -165,7 +174,14 @@ public class SaltWriter {
 		return regionIdToTokenIdsMap;
 	}
 
-
+	/** adds a new SLayer with the given name to an existing SDocument */
+	public static void addSLayerToSDocument(SDocument doc, String layerName) {
+		SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
+		annoLayer.setSName(layerName);
+		annoSpaceSLayerMap.put(layerName, annoLayer);
+		doc.getSDocumentGraph().addSLayer(annoLayer);		
+	}
+	
 	/** takes a list of IRegions and returns the corresponding STokens*/
 	public static List<SToken> mapRegionsToTokens(List<IRegion> regions, 
 											   HashMap<String,List<String>> regionIdToTokenIdsMap,
