@@ -1,34 +1,19 @@
 /**
  * 
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
+package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.tests;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.Collator;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
-
-import javax.xml.xpath.XPathExpressionException;
 
 import org.xces.graf.api.GrafException;
-import org.xces.graf.api.IAnnotation;
-import org.xces.graf.api.IEdge;
 import org.xces.graf.api.IGraph;
-import org.xces.graf.api.ILink;
 import org.xces.graf.api.INode;
-import org.xces.graf.api.IRegion;
 import org.xces.graf.io.dom.ResourceHeader;
 import org.xml.sax.SAXException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafDocumentHeader;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafGraphInfo;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafReader;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.SaltWriter;
 
 public class RootNodesTest {
 

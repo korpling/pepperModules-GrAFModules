@@ -1,9 +1,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 
 import java.util.HashMap;
-import java.util.List;
 
-import org.xces.graf.api.IEdge;
 import org.xces.graf.api.IGraph;
 import org.xces.graf.api.INode;
 

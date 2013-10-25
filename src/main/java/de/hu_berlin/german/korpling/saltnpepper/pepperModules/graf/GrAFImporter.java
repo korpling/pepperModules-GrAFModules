@@ -20,24 +20,17 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 import org.xces.graf.api.GrafException;
-import org.xces.graf.api.IAnnotationSpace;
 import org.xces.graf.api.IGraph;
-import org.xces.graf.api.INode;
 import org.xces.graf.api.ILink;
+import org.xces.graf.api.INode;
 import org.xces.graf.api.IRegion;
 import org.xces.graf.impl.DefaultImplementation;
 
@@ -46,13 +39,9 @@ import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImpor
 import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.Edge;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
@@ -83,17 +72,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		this.addSupportedFormat("GrAF", "1.0", null);
 		this.setProperties(new GrAFImporterProperties());
 	}
-	
-	/**
-	 * The list of all endings to be handled by this Importer.
-	 */
-	private EList<String> endings= null;
-	
-	/**
-	 * Stores relation between documents and their resource 
-	 */
-	private Map<SElementId, URI> documentResourceTable= null;
-	
+		
 	/** returns a list of document header file paths, which belong to documents
 	 *  that are segmented and POS tagged. */
 	public List<String> getTokenizedPOSTaggedDocHeaders(List<String> documentHeaderPaths) 

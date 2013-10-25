@@ -1,5 +1,7 @@
 package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 
+import static java.util.Arrays.asList;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -8,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import static java.util.Arrays.asList;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -25,7 +26,6 @@ import org.xces.graf.io.dom.ResourceHeader;
 import org.xces.graf.util.GraphUtils;
 import org.xml.sax.SAXException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFExporterException;
 import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;

@@ -2,8 +2,6 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 
 import java.util.Comparator;
 
-import org.xces.graf.api.IIdentifiable;
-
 import de.hu_berlin.german.korpling.saltnpepper.salt.graph.IdentifiableElement;
 
 /** sorts SNode and SEdge instances by their IDs.
