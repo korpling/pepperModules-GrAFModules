@@ -260,8 +260,8 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					String primaryText = GrafReader.getDocumentText(iGraph);
 					SaltWriter.addPrimaryTextToDocument(sDocument, primaryText);
 					
-					HashMap<String, List<String>> iNodeIdToSNodeIdsMap = addGrafStructureToSDocument(iGraph, sDocument);
-					HashMap<String, SNode> sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(iGraph, 
+					HashMap<String, List<String>> iNodeIdToSNodeIdsMap = addGrafStructureToSDocument(fixedIGraph, sDocument);
+					HashMap<String, SNode> sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(fixedIGraph, 
 																	iNodeIdToSNodeIdsMap, 
 																	sDocument);
 					
