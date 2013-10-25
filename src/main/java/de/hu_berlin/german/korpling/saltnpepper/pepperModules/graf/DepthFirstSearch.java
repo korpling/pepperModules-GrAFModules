@@ -7,7 +7,9 @@ import org.xces.graf.api.IEdge;
 import org.xces.graf.api.IGraph;
 import org.xces.graf.api.INode;
 
-/** This class is meant as a workaround for floating leaf nodes in MASC/GrAF.*/
+/** This class is meant as a workaround for floating leaf nodes in MASC/GrAF.
+ *  The depth first search creates an ordering of the graph that is used to
+ *  find the preceding/succeeding leaf node of a floating node. */
 public class DepthFirstSearch {
 
 	private boolean[] visited;
