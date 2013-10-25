@@ -420,12 +420,19 @@ public class GrafReader {
 			String candidateId = rootNodeCandidate.getId();
 			rootNodeCandidateIds.add(candidateId);
 		}
-		INode firstParentNode = leafNode.getInEdge(0).getFrom();
-		if (rootNodeCandidateIds.contains(firstParentNode.getId())) {
-			return firstParentNode;
+
+		if (leafNode.getInEdges().isEmpty()) {
+			System.out.println("DEBUG getRootNodeFromNode: IGraph has a weird floating root node: "+leafNode.getId());
+			return leafNode; // a node without ingoing edges is a root node
 		}
 		else {
-			return getRootNodeFromNode(firstParentNode, iGraph);
+			INode firstParentNode = leafNode.getInEdge(0).getFrom();
+			if (rootNodeCandidateIds.contains(firstParentNode.getId())) {
+				return firstParentNode;
+			}
+			else {
+				return getRootNodeFromNode(firstParentNode, iGraph);
+			}
 		}
 	}
 	
