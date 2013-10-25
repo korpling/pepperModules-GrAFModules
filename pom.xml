@@ -54,6 +54,9 @@
       <!-- <url>scpexe://korpling.german.hu-berlin.de/srv/www/maven2/</url>-->
     </repository>
   </distributionManagement>
+  <properties>
+        <graf.version>1.2.2</graf.version>
+  </properties>
   <dependencies>
   
   <dependency>
@@ -66,28 +69,28 @@
   	<dependency>
 		<groupId>org.tc37sc4.graf</groupId>
 		<artifactId>graf-api</artifactId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>${graf.version}</version>
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.tc37sc4.graf</groupId>
 		<artifactId>graf-impl</artifactId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>${graf.version}</version>
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.tc37sc4.graf</groupId>
 		<artifactId>graf-io</artifactId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>${graf.version}</version>
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
 	<dependency>
 		<groupId>org.tc37sc4.graf</groupId>
 		<artifactId>graf-util</artifactId>
-		<version>1.2.0-SNAPSHOT</version>
+		<version>${graf.version}</version>
 		<type>jar</type>
 		<scope>compile</scope>
 	</dependency>
@@ -157,8 +160,8 @@
             <Bundle-Version>${project.version}</Bundle-Version>
             <Bundle-RequiredExecutionEnvironment>JavaSE-${java.version}</Bundle-RequiredExecutionEnvironment>
             <Service-Component>${allServiceComponents}</Service-Component>
-            <Bundle-ClassPath>.,{maven-dependencies}, lib/commons-lang3-3.1.jar, lib/graf-api-1.2.0-SNAPSHOT.jar, lib/graf-i18n-1.2.0-SNAPSHOT.jar, lib/graf-impl-1.2.0-SNAPSHOT.jar, lib/graf-io-1.2.0-SNAPSHOT.jar, lib/graf-util-1.2.0-SNAPSHOT.jar</Bundle-ClassPath>
-            <Include-Resource>{maven-resources}, LICENSE, NOTICE, lib/commons-lang3-3.1.jar=lib/commons-lang3-3.1.jar, lib/graf-api-1.2.0-SNAPSHOT.jar=lib/graf-api-1.2.0-SNAPSHOT.jar, lib/graf-i18n-1.2.0-SNAPSHOT.jar=lib/graf-i18n-1.2.0-SNAPSHOT.jar, lib/graf-impl-1.2.0-SNAPSHOT.jar=lib/graf-impl-1.2.0-SNAPSHOT.jar, lib/graf-io-1.2.0-SNAPSHOT.jar=lib/graf-io-1.2.0-SNAPSHOT.jar, lib/graf-util-1.2.0-SNAPSHOT.jar=lib/graf-util-1.2.0-SNAPSHOT.jar</Include-Resource>
+            <Bundle-ClassPath>.,{maven-dependencies}, lib/commons-lang3-3.1.jar, lib/graf-api-${graf.version}.jar, lib/graf-i18n-${graf.version}.jar, lib/graf-impl-${graf.version}.jar, lib/graf-io-${graf.version}.jar, lib/graf-util-${graf.version}.jar</Bundle-ClassPath>
+            <Include-Resource>{maven-resources}, LICENSE, NOTICE, lib/commons-lang3-3.1.jar=lib/commons-lang3-3.1.jar, lib/graf-api-${graf.version}.jar=lib/graf-api-${graf.version}.jar, lib/graf-i18n-${graf.version}.jar=lib/graf-i18n-${graf.version}.jar, lib/graf-impl-${graf.version}.jar=lib/graf-impl-${graf.version}.jar, lib/graf-io-${graf.version}.jar=lib/graf-io-${graf.version}.jar, lib/graf-util-${graf.version}.jar=lib/graf-util-${graf.version}.jar</Include-Resource>
           </instructions>
         </configuration>
       </plugin>
