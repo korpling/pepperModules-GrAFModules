@@ -19,7 +19,7 @@ public class RootNodesTest {
 
 	/** test code for Bug #159: NullPointerException in GrafReader.getRootNodeFromNode */
 	public static void main(String[] args) throws GrafException, SAXException, IOException {
-		String corpusPath = System.getProperty("user.home").toString()+"/corpora/MASC-3.0.0_20130930/";
+		String corpusPath = System.getProperty("user.home").toString()+"/corpora/MASC-3.0.0/";
 		File headerFile = new File(corpusPath, "resource-header.xml");
 		ResourceHeader rscHeader = new ResourceHeader(headerFile);
 
