@@ -48,7 +48,6 @@ public class DepthFirstSearch {
 	}
 
 	private void dfs(IGraph graph, INode sourceNode) {
-		// System.out.println("\tstart dfs with sourceNode "+sourceNode.getId());
 		String nodeId = sourceNode.getId();
 		if (nodeIdToOrderedNodeNumberMap.containsKey(nodeId)) {
 			int orderedNodeNumber = nodeIdToOrderedNodeNumberMap.get(nodeId);
@@ -60,9 +59,7 @@ public class DepthFirstSearch {
 			nodeIndex++;
 		}
 
-		// System.out.println("\toutbound connected nodes of source node: ");
 		for (INode outboundConnectedNode : GrafReader.getOutboundConnectedNodes(sourceNode)) {
-			// System.out.println("\t\t outboundConnectedNode "+outboundConnectedNode.getId());
 			if (!isVisited(outboundConnectedNode)) {
 				dfs(graph, outboundConnectedNode);
 			}
@@ -121,5 +118,4 @@ public class DepthFirstSearch {
 		} else
 			return null; // node has no ordered number
 	}
-
 }
