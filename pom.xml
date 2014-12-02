@@ -7,8 +7,8 @@
   <description>This project provides a Pepper importer and an exporter for GrAF data.</description>
   <url>https://korpling.german.hu-berlin.de/p/projects/peppermodules-grafmodules</url>
   <issueManagement>
-  	<system>Redmine</system>
-  	<url>https://korpling.german.hu-berlin.de/p/projects/peppermodules-grafmodules/issues</url>
+  	<system>GitHub</system>
+  	<url>https://github.com/korpling/pepperModules-GrAFModules/issues</url>
   </issueManagement>
   <ciManagement>
   	<system>Jenkins</system>
@@ -43,8 +43,9 @@
     <version>1.1.5</version>
   </parent>
   <scm>
-    <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/GrAFModules/trunk</developerConnection>
-    <url>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/pepper/pepperModules-GrAFModules</url>
+  	<connection>scm:git:git://github.com/korpling/pepperModules-GrAFModules.git</connection>
+    <developerConnection>scm:git:git@github.com:korpling/pepperModules-GrAFModules.git</developerConnection>
+    <url>https://github.com/korpling/pepperModules-GrAFModules</url>
   </scm>
   <distributionManagement>
     <repository>
@@ -128,10 +129,18 @@
       <plugin>
         <artifactId>maven-release-plugin</artifactId>
         <version>${maven-release-plugin.version}</version>
+        <executions>
+        	<execution>
+        		<id>default</id>
+        		<goals>
+        			<goal>perform</goal>        			
+        		</goals>
+        		<configuration>
+        			<pomFileName>pepperModules-GrAFModules/pom.xml</pomFileName>
+        		</configuration>
+        	</execution>
+        </executions>
         <configuration>
-          <tagBase>
-           https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/GrAFModules/tags/
-          </tagBase>
           <releaseProfiles>release</releaseProfiles>
           <goals>package assembly:single deploy</goals>
         </configuration>
