@@ -232,7 +232,7 @@ public class SaltWriter {
 		// createSSpan only accepts ELists, not Lists
 		SSpan sSpan = sDocument.getSDocumentGraph().createSSpan(sTokensEList);
 		for (SLayer layer : sLayers) {
-			layer.getSNodes().add(sSpan);
+			sSpan.getSLayers().add(layer);
 		}
 		return sSpan.getId();
 	}
@@ -407,7 +407,7 @@ public class SaltWriter {
 		SToken sToken = SaltFactory.eINSTANCE.createSToken();
 		sToken.setSName(regionId);
 		sDocument.getSDocumentGraph().addSNode(sToken);
-		layer.getSNodes().add(sToken);
+		sToken.getSLayers().add(layer);
 		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
 		sTextRel.setSToken(sToken);
 		sTextRel.setSTextualDS(sTextualDS);
