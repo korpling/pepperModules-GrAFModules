@@ -1,6 +1,6 @@
 ![SaltNPepper project](./gh-site/img/SaltNPepper_logo2010.png)
 # pepperModules-GrAFModules
-This project provides an importer to support the GrAF format (see http://www.americannationalcorpus.org/graf-wiki) for the linguistic converter framework Pepper. A detailed description of that mapping can be found in section [GrAFImporter](#details).
+This project provides an importer to support the GrAF format (see http://www.americannationalcorpus.org/graf-wiki) for the linguistic converter framework Pepper (see https://u.hu-berlin.de/saltnpepper). A detailed description of that mapping can be found in section [GrAFImporter](#details).
 
 Pepper is a pluggable framework to convert a variety of linguistic formats (like [TigerXML](http://www.ims.uni-stuttgart.de/forschung/ressourcen/werkzeuge/TIGERSearch/doc/html/TigerXML.html), the [EXMARaLDA format](http://www.exmaralda.org/), [PAULA](http://www.sfb632.uni-potsdam.de/paula.html) etc.) into each other. Furthermore Pepper uses Salt (see https://github.com/korpling/salt), the graph-based meta model for linguistic data, which acts as an intermediate model to reduce the number of mappings to be implemented. That means converting data from a format _A_ to format _B_ consists of two steps. First the data is mapped from format _A_ to Salt and second from Salt to format _B_. This detour reduces the number of Pepper modules from _n<sup>2</sup>-n_ (in the case of a direct mapping) to _2n_ to handle a number of n formats.
 
