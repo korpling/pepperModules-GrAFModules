@@ -1,5 +1,5 @@
 /**
- * Copyright 2009 Humboldt University of Berlin, INRIA.
+ * Copyright 2009 Humboldt-Universität zu Berlin, INRIA.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,9 @@ import org.xces.graf.api.INode;
 import org.xces.graf.api.IRegion;
 import org.xces.graf.impl.DefaultImplementation;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperExceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.pepperModules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.exceptions.GrAFImporterException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
+import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperImporterImpl;
 import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
@@ -67,7 +66,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	{
 		super();
 		//setting name of module
-		this.name= "GrAFImporter";
+		setName("GrAFImporter");
 		//set list of formats supported by this module
 		this.addSupportedFormat("GrAF", "1.0", null);
 		this.setProperties(new GrAFImporterProperties());
@@ -151,7 +150,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	public void importCorpusStructure(SCorpusGraph corpusGraph)
 			throws PepperModuleException 
 	{
-		String corpusPath= this.getCorpusDefinition().getCorpusPath().toFileString();
+		String corpusPath= this.getCorpusDesc().getCorpusPath().toFileString();
 		try
 		{
 			List<String> docHeaderPaths = recursiveListDir(corpusPath, ((GrAFImporterProperties)this.getProperties()).getHeaderFileEnding());;
@@ -174,7 +173,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 			rscHeader = new GrafResourceHeader(corpusPath);
 		}catch (Exception e)
 		{
-			throw new GrAFImporterException("Cannot import corpus at location '"+corpusPath+"'. ", e);
+			throw new PepperModuleException(this, "Cannot import corpus at location '"+corpusPath+"'. ", e);
 		}
 		
 	}
@@ -271,7 +270,7 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 				
 				
 				catch (Exception e) {
-					throw new GrAFImporterException("Cannot import SDocument '"+sElementId+"' ",e);
+					throw new PepperModuleException(this, "Cannot import SDocument '"+sElementId+"' ",e);
 				}
 			}
 		}//only if given sElementId belongs to an object of type SDocument or SCorpus
