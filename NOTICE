@@ -22,6 +22,7 @@ This project includes:
   Apache Commons Lang under The Apache Software License, Version 2.0
   carrot-osgi-anno-scr-core under The BSD License
   carrot-osgi-anno-scr-make under The BSD License
+  Commons IO under The Apache Software License, Version 2.0
   de.hu_berlin.german.korpling.saltnpepper.pepperModules-GrAFModules under The Apache Software License, Version 2.0
   GrAF Implementation under The Apache Software License, Version 2.0
   GrAF Internationalization under The Apache Software License, Version 2.0
