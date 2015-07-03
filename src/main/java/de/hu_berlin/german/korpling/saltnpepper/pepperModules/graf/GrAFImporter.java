@@ -26,6 +26,7 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IGraph;
@@ -45,17 +46,7 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 /**
- * This is a sample PepperImporter, which can be used for creating individual Importers for the 
- * Pepper Framework. Therefor you have to take a look to todo's and adapt the code.
- * 
- * <ul>
- *  <li>the salt model to fill, manipulate or export can be accessed via SaltProject::this.getSaltProject()</li>
- * 	<li>special parameters given by Pepper workflow can be accessed via URI::this.getSpecialParams()</li>
- *  <li>a place to store temprorary datas for processing can be accessed via URI::this.getTemproraries()</li>
- *  <li>a place where resources of this bundle are, can be accessed via URL::this.getResources()</li>
- *  <li>a logService can be accessed via LogService::this.getLogService()</li>
- * </ul>
- * @author Florian Zipser
+ * @author Arne Neumann
  * @version 1.0
  *
  */
@@ -67,6 +58,10 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 		super();
 		//setting name of module
 		setName("GrAFImporter");
+		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-GrAFModules"));
+		setDesc("This importer transforms data in the GrAF format to a Salt model. ");
+
 		//set list of formats supported by this module
 		this.addSupportedFormat("GrAF", "1.0", null);
 		this.setProperties(new GrAFImporterProperties());
