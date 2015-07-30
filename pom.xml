@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>de.hu_berlin.german.korpling.saltnpepper</groupId>
 		<artifactId>pepper-parentModule</artifactId>
-		<version>2.1.2-SNAPSHOT</version>
+		<version>2.1.2</version>
 	</parent>
 	<description>This project provides a Pepper importer and an exporter for GrAF data.</description>
 	<url>https://github.com/korpling/pepperModules-GrAFModules</url>
