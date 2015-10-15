@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
+package org.corpus_tools.peppermodules.graf;
 
 import static java.util.Arrays.asList;
 

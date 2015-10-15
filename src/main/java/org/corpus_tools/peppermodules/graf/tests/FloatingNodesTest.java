@@ -18,7 +18,7 @@
 /**
  * 
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.tests;
+package org.corpus_tools.peppermodules.graf.tests;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,17 +27,16 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.corpus_tools.peppermodules.graf.DepthFirstSearch;
+import org.corpus_tools.peppermodules.graf.GrAFImporter;
+import org.corpus_tools.peppermodules.graf.GrafDocumentHeader;
+import org.corpus_tools.peppermodules.graf.GrafGraphInfo;
+import org.corpus_tools.peppermodules.graf.GrafReader;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IGraph;
 import org.xces.graf.api.INode;
 import org.xces.graf.io.dom.ResourceHeader;
 import org.xml.sax.SAXException;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.DepthFirstSearch;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrAFImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafDocumentHeader;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafGraphInfo;
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf.GrafReader;
 
 /**
  * @author arne
