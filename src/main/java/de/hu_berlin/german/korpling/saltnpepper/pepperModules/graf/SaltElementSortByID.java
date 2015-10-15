@@ -19,7 +19,7 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graf;
 
 import java.util.Comparator;
 
-import de.hu_berlin.german.korpling.saltnpepper.salt.graph.IdentifiableElement;
+import org.corpus_tools.salt.graph.IdentifiableElement;
 
 /**
  * sorts SNode and SEdge instances by their IDs.

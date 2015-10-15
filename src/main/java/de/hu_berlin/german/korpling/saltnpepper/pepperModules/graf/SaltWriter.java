@@ -25,9 +25,23 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.salt.SALT_TYPE;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.STextualRelation;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.core.SAnnotation;
+import org.corpus_tools.salt.core.SLayer;
+import org.corpus_tools.salt.core.SNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IAnchor;
 import org.xces.graf.api.IAnnotation;
@@ -38,22 +52,8 @@ import org.xces.graf.api.ILink;
 import org.xces.graf.api.INode;
 import org.xces.graf.api.IRegion;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SStructure;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualRelation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SAnnotation;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SLayer;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
-
 public class SaltWriter {
-
+	protected static final Logger logger= LoggerFactory.getLogger(GrAFImporter.MODULE_NAME);
 	/**
 	 * A GrAF corpus may contain several primary text segmentations. For
 	 * example, MASC 3.0.0 has a segmentation called "f.s", which partions the
@@ -68,7 +68,7 @@ public class SaltWriter {
 	}
 
 	/** A Salt dominance relation */
-	public static STYPE_NAME domRel = STYPE_NAME.SDOMINANCE_RELATION;
+	public static SALT_TYPE domRel = SALT_TYPE.SDOMINANCE_RELATION;
 
 	private static int floatingNodeCount;
 
@@ -92,17 +92,17 @@ public class SaltWriter {
 	 */
 	public static void addAnnotationToNode(String sAnnotationName, String sAnnotationId, String sAnnotationValue, String sAnnotationNamespace, SNode sNode) {
 		HashSet<String> existingAnnotationSNames = new HashSet<String>();
-		for (SAnnotation existingAnno : sNode.getSAnnotations()) {
-			existingAnnotationSNames.add(existingAnno.getSName());
+		for (SAnnotation existingAnno : sNode.getAnnotations()) {
+			existingAnnotationSNames.add(existingAnno.getName());
 		}
 
 		// only add annotations that don't exist yet
 		if (!existingAnnotationSNames.contains(sAnnotationName)) {
-			SAnnotation sAnno = SaltFactory.eINSTANCE.createSAnnotation();
-			sAnno.setSName(sAnnotationName);
-			sAnno.setSValue(sAnnotationValue);
-			sAnno.setSNS(sAnnotationNamespace);
-			sNode.addSAnnotation(sAnno);
+			SAnnotation sAnno = SaltFactory.createSAnnotation();
+			sAnno.setName(sAnnotationName);
+			sAnno.setValue(sAnnotationValue);
+			sAnno.setNamespace(sAnnotationNamespace);
+			sNode.addAnnotation(sAnno);
 		}
 	}
 
@@ -119,13 +119,13 @@ public class SaltWriter {
 	public static void addPrimaryTextToDocument(SDocument sDocument, String primaryText) {
 		if (sDocument == null)
 			throw new PepperModuleException("Cannot create example, because the given sDocument is empty.");
-		if (sDocument.getSDocumentGraph() == null)
+		if (sDocument.getDocumentGraph() == null)
 			throw new PepperModuleException("Cannot create example, because the given sDocument does not contain an SDocumentGraph.");
 		STextualDS sTextualDS = null;
-		sTextualDS = SaltFactory.eINSTANCE.createSTextualDS();
-		sTextualDS.setSText(primaryText);
+		sTextualDS = SaltFactory.createSTextualDS();
+		sTextualDS.setText(primaryText);
 		// adding the text to the document-graph
-		sDocument.getSDocumentGraph().addSNode(sTextualDS);
+		sDocument.getDocumentGraph().addNode(sTextualDS);
 	}
 
 	/**
@@ -202,10 +202,10 @@ public class SaltWriter {
 
 	/** adds a new SLayer with the given name to an existing SDocument */
 	public static void addSLayerToSDocument(SDocument doc, String layerName) {
-		SLayer annoLayer = SaltFactory.eINSTANCE.createSLayer();
-		annoLayer.setSName(layerName);
+		SLayer annoLayer = SaltFactory.createSLayer();
+		annoLayer.setName(layerName);
 		annoSpaceSLayerMap.put(layerName, annoLayer);
-		doc.getSDocumentGraph().addSLayer(annoLayer);
+		doc.getDocumentGraph().addLayer(annoLayer);
 	}
 
 	/** takes a list of IRegions and returns the corresponding STokens */
@@ -216,7 +216,7 @@ public class SaltWriter {
 			if (regionIdToTokenIdsMap.containsKey(regionId)) {
 				List<String> tokenIds = regionIdToTokenIdsMap.get(regionId);
 				for (String tokenId : tokenIds) {
-					SToken sToken = (SToken) docGraph.getSNode(tokenId);
+					SToken sToken = (SToken) docGraph.getNode(tokenId);
 					tokenList.add(sToken);
 				}
 			} else {
@@ -227,12 +227,12 @@ public class SaltWriter {
 	}
 
 	/** adds an SSpan to an SDocument and returns the SSpan ID. */
-	public static String addSSpanToSDocument(List<SToken> sTokens, SDocument sDocument, List<SLayer> sLayers) {
-		EList<SToken> sTokensEList = new BasicEList<SToken>(sTokens);
-		// createSSpan only accepts ELists, not Lists
-		SSpan sSpan = sDocument.getSDocumentGraph().createSSpan(sTokensEList);
+	public static String addSSpanToSDocument(List<SToken> sTokens, SDocument sDocument, Set<SLayer> sLayers) {
+		List<SToken> sTokensList = new ArrayList<>(sTokens);
+		// createSSpan only accepts Lists, not Lists
+		SSpan sSpan = sDocument.getDocumentGraph().createSpan(sTokensList);
 		for (SLayer layer : sLayers) {
-			sSpan.getSLayers().add(layer);
+			sSpan.addLayer(layer);
 		}
 		return sSpan.getId();
 	}
@@ -253,7 +253,7 @@ public class SaltWriter {
 	 */
 	public static HashMap<String, List<String>> addSSpansToSDocument(IGraph iDocumentGraph, SDocument sDocument, HashMap<String, List<String>> regionIdsToTokenIdsMap) throws GrafException {
 
-		SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
+		SDocumentGraph sDocumentGraph = sDocument.getDocumentGraph();
 		HashMap<String, List<String>> iNodeIdsToSNodeIdsMap = new HashMap<String, List<String>>();
 
 		for (INode iNode : iDocumentGraph.getNodes()) {
@@ -264,7 +264,7 @@ public class SaltWriter {
 				} else { // the mother node of a floating node often doesn't
 							// cover any regions
 							// throw new UnsupportedOperationException
-					System.out.println("DEBUG: INode " + iNode.getId() + " doesn't cover" + " any IRegions but is not a floating node either!" + " Do we need to handle it separately?");
+					logger.debug("INode " + iNode.getId() + " doesn't cover" + " any IRegions but is not a floating node either!" + " Do we need to handle it separately?");
 				}
 			} else if (iRegionsCoveredByINode.size() == 1) {
 				String coveredIRegionId = iRegionsCoveredByINode.get(0).getId();
@@ -287,11 +287,10 @@ public class SaltWriter {
 		int[] offsets = GrafReader.getFloatingNodeOffsets(iDocumentGraph, floatingINode);
 		String annoSpaceName = floatingINode.getAnnotation().getAnnotationSpace().getName();
 		SLayer regionLayer = annoSpaceSLayerMap.get(annoSpaceName);
-		String regionId = "floating-" + regionLayer.getSName() + "-node-" + String.valueOf(floatingNodeCount);
+		String regionId = "floating-" + regionLayer.getName() + "-node-" + String.valueOf(floatingNodeCount);
 
 		String fakeTokenId = addTokenToDocument(offsets[0], offsets[1], sDocument, regionLayer, regionId);
 		iNodeIdsToSNodeIdsMap.put(floatingINode.getId(), asList(fakeTokenId));
-		// System.out.println("\tINode ID "+iNode.getId()+" --> SNode ID "+fakeTokenId);
 		floatingNodeCount++;
 	}
 
@@ -316,8 +315,8 @@ public class SaltWriter {
 	public static void addRegionsToINodeSNodeMap(INode iNode, List<IRegion> iRegionsCoveredByINode, HashMap<String, List<String>> iNodeIdsToSNodeIdsMap, HashMap<String, List<String>> regionIdsToTokenIdsMap, SDocument sDocument) {
 		// IRegions are already added to the document, we just need to add
 		// SSpans for INodes that cover more than one IRegion
-		List<SToken> tokens = mapRegionsToTokens(iRegionsCoveredByINode, regionIdsToTokenIdsMap, sDocument.getSDocumentGraph());
-		List<SLayer> sLayers = SaltWriter.mapTokensToSLayers(tokens);
+		List<SToken> tokens = mapRegionsToTokens(iRegionsCoveredByINode, regionIdsToTokenIdsMap, sDocument.getDocumentGraph());
+		Set<SLayer> sLayers = SaltWriter.mapTokensToSLayers(tokens);
 		String sSpanId = addSSpanToSDocument(tokens, sDocument, sLayers);
 		iNodeIdsToSNodeIdsMap.put(iNode.getId(), asList(sSpanId));
 		// using a list here to make the map usable for both SSpanIDs as well as
@@ -403,28 +402,28 @@ public class SaltWriter {
 	 * @return the ID of the created token
 	 */
 	public static String addTokenToDocument(int onset, int offset, SDocument sDocument, SLayer layer, String regionId) {
-		STextualDS sTextualDS = sDocument.getSDocumentGraph().getSTextualDSs().get(0);
-		SToken sToken = SaltFactory.eINSTANCE.createSToken();
-		sToken.setSName(regionId);
-		sDocument.getSDocumentGraph().addSNode(sToken);
-		sToken.getSLayers().add(layer);
-		STextualRelation sTextRel = SaltFactory.eINSTANCE.createSTextualRelation();
-		sTextRel.setSToken(sToken);
-		sTextRel.setSTextualDS(sTextualDS);
-		sTextRel.setSStart(onset);
-		sTextRel.setSEnd(offset);
-		sDocument.getSDocumentGraph().addSRelation(sTextRel);
-		return sToken.getSId();
+		STextualDS sTextualDS = sDocument.getDocumentGraph().getTextualDSs().get(0);
+		SToken sToken = SaltFactory.createSToken();
+		sToken.setName(regionId);
+		sDocument.getDocumentGraph().addNode(sToken);
+		sToken.addLayer(layer);
+		STextualRelation sTextRel = SaltFactory.createSTextualRelation();
+		sTextRel.setSource(sToken);
+		sTextRel.setTarget(sTextualDS);
+		sTextRel.setStart(onset);
+		sTextRel.setEnd(offset);
+		sDocument.getDocumentGraph().addRelation(sTextRel);
+		return sToken.getId();
 	}
 
 	/**
 	 * takes a list of STokens and returns a list of all the SLayers that at
 	 * least one of them occurs in.
 	 */
-	public static List<SLayer> mapTokensToSLayers(List<SToken> tokens) {
-		List<SLayer> sLayersList = new ArrayList<SLayer>();
+	public static Set<SLayer> mapTokensToSLayers(List<SToken> tokens) {
+		Set<SLayer> sLayersList = new HashSet<>();
 		for (SToken token : tokens) {
-			EList<SLayer> tokenLayers = token.getSLayers();
+			Set<SLayer> tokenLayers = token.getLayers();
 			sLayersList.addAll(tokenLayers);
 		}
 		return sLayersList;
@@ -446,13 +445,13 @@ public class SaltWriter {
 	 */
 	public static HashMap<String, SNode> addAnnotationsToSDocument(IGraph iGraph, HashMap<String, List<String>> iNodeIdToSNodeIdMap, SDocument sDocument) throws GrafException {
 
-		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
+		SDocumentGraph docGraph = sDocument.getDocumentGraph();
 
 		HashMap<String, SNode> nodeIdToNodeMap = new HashMap<String, SNode>();
-		for (SNode sNode : docGraph.getSTokens()) {
+		for (SNode sNode : docGraph.getTokens()) {
 			nodeIdToNodeMap.put(sNode.getId(), sNode);
 		}
-		for (SNode sNode : docGraph.getSSpans()) {
+		for (SNode sNode : docGraph.getSpans()) {
 			nodeIdToNodeMap.put(sNode.getId(), sNode);
 		}
 
@@ -473,9 +472,8 @@ public class SaltWriter {
 	 */
 	public static void addAnnotationsToSNode(INode annotationINode, SNode sNode) {
 		String annotationId = annotationINode.getId();
-		IAnnotation iAnnotation = annotationINode.getAnnotation(); // returns
-																	// default
-																	// annotation
+		IAnnotation iAnnotation = annotationINode.getAnnotation(); 
+		// returns default annotation
 		String annoNamespace = iAnnotation.getAnnotationSpace().getName();
 		Iterable<IFeature> annoFeatures = iAnnotation.getFeatures().features();
 		for (IFeature feature : annoFeatures) {
@@ -504,9 +502,9 @@ public class SaltWriter {
 				// create an SStructure for each syntax node, i.e. nodes that
 				// are labeled with 'S', 'NP' etc. but don't create SStructures
 				// for leaf nodes (here: tokens).
-				SStructure syntaxSStructure = SaltFactory.eINSTANCE.createSStructure();
-				syntaxSStructure.setSName(syntaxINode.getId());
-				syntaxSStructure.setSId(syntaxINode.getId());
+				SStructure syntaxSStructure = SaltFactory.createSStructure();
+				syntaxSStructure.setName(syntaxINode.getId());
+				syntaxSStructure.setId(syntaxINode.getId());
 				addAnnotationsToSNode(syntaxINode, syntaxSStructure);
 
 				// syntaxSStructure.createSAnnotation(arg0, arg1, arg2)
@@ -523,24 +521,15 @@ public class SaltWriter {
 	 * @throws GrafException
 	 */
 	public static void addSyntaxTreeRootDomRelsToDocGraph(IGraph syntaxIGraph, SDocumentGraph docGraph, HashMap<String, SStructure> iNodeIdToSStructureMap, SStructure rootSStructure) throws GrafException {
-		System.out.println("DEBUG addSyntaxTreeRootDomRelsToDocGraph:");
-
 		for (INode treeRootINode : GrafReader.getRootNodes(syntaxIGraph)) {
 			String treeRootNodeId = treeRootINode.getId();
 			if (iNodeIdToSStructureMap.containsKey(treeRootNodeId)) {
 				SStructure dominatedSStructure = iNodeIdToSStructureMap.get(treeRootNodeId);
 				if (!docGraph.getNodes().contains(dominatedSStructure)) {
-					docGraph.addSNode(dominatedSStructure);
+					docGraph.addNode(dominatedSStructure);
 				}
 
-				docGraph.addSNode(rootSStructure, dominatedSStructure, domRel);
-
-				System.out.println("added domrel from root to " + dominatedSStructure.getId());
-			} else {
-				GrafGraphInfo.printNodeInfo(treeRootINode, syntaxIGraph);
-				// throw new
-				// GrAFImporterException("tree root node '"+treeRootNodeId
-				// +"' is not in iNodeIdToSStructureMap.");
+				docGraph.addNode(rootSStructure, dominatedSStructure, domRel);
 			}
 		}
 	}
@@ -555,8 +544,6 @@ public class SaltWriter {
 	 * @throws GrafException
 	 */
 	public static void addSyntaxNodeDomRelsToDocGraph(IGraph syntaxIGraph, SDocumentGraph docGraph, HashMap<String, SStructure> iNodeIdToSStructureMap, HashMap<String, List<String>> iNodeIDsToSNodeIdsMap, HashMap<String, SNode> sNodeIdToSNodeMap) throws GrafException {
-
-		System.out.println("DEBUG addSyntaxNodeDomRelsToDocGraph ...");
 		for (INode syntaxINode : syntaxIGraph.getNodes()) {
 			if (syntaxINode.getOutEdges().size() > 0) {
 				SStructure sourceSStructure = iNodeIdToSStructureMap.get(syntaxINode.getId());
@@ -564,7 +551,7 @@ public class SaltWriter {
 				// TODO: check why the document graph doesn't contain certain
 				// SStructures
 				if (!docGraph.getNodes().contains(sourceSStructure)) {
-					docGraph.addSNode(sourceSStructure);
+					docGraph.addNode(sourceSStructure);
 				}
 
 				for (INode connectedSyntaxINode : GrafReader.getOutboundConnectedNodes(syntaxINode)) {
@@ -575,9 +562,6 @@ public class SaltWriter {
 						if (linksToTokenRegions.size() > 0) {
 							addDomRelToNonFloatingSToken(syntaxIGraph, docGraph, sourceSStructure, linksToTokenRegions);
 						} else {
-							System.out.println("\tDEBUG floating INode " + connectedSyntaxINode.getId());
-							System.out.println("\t\t is in iNodeIDsToSNodeIdsMap: " + iNodeIDsToSNodeIdsMap.get(connectedSyntaxINode));
-							System.out.println("\t\t is in iNodeIdToSStructureMap: " + iNodeIdToSStructureMap.get(connectedSyntaxINode));
 							addDomRelToFloatingSToken(syntaxIGraph, docGraph, sourceSStructure, connectedSyntaxINode);
 						}
 					}
@@ -599,14 +583,14 @@ public class SaltWriter {
 		String dominatedINodeId = dominatedINode.getId();
 		if (iNodeIdToSStructureMap.containsKey(dominatedINodeId)) {
 			SStructure dominatedSStructure = iNodeIdToSStructureMap.get(dominatedINodeId);
-			docGraph.addSNode(sourceSStructure, dominatedSStructure, domRel);
+			docGraph.addNode(sourceSStructure, dominatedSStructure, domRel);
 		} else { // TODO: check why iNodeIdToSStructureMap doesn't contain
 					// certain dominated INode IDs
 			List<String> dominatedSElementIds = iNodeIDsToSNodeIdsMap.get(dominatedINodeId);
 			for (String dominatedSElementId : dominatedSElementIds) {
 				if (sNodeIdToSNodeMap.containsKey(dominatedSElementId)) {
 					SNode dominatedSNode = sNodeIdToSNodeMap.get(dominatedSElementId);
-					docGraph.addSNode(sourceSStructure, dominatedSNode, domRel);
+					docGraph.addNode(sourceSStructure, dominatedSNode, domRel);
 				} else {
 					throw new PepperModuleException(" Can't find element '" + dominatedSElementId + "' in token map or span map!1!!");
 				}
@@ -619,7 +603,7 @@ public class SaltWriter {
 	 * node. TODO: implement method / merge it with addDomRelToNonFloatingSToken
 	 */
 	public static void addDomRelToFloatingSToken(IGraph syntaxIGraph, SDocumentGraph docGraph, SStructure sourceSStructure, INode connectedSyntaxINode) {
-		System.out.println("connected syntax INode " + connectedSyntaxINode.getId() + " does neither have out edges nor links.");
+		logger.debug("Connected syntax INode " + connectedSyntaxINode.getId() + " does neither have out edges nor links.");
 		throw new UnsupportedOperationException("TODO: METHOD NOT IMPLEMENTED, YET");
 		// docGraph.addSNode(sourceSStructure, connectedSyntaxINode, domRel);
 	}
@@ -636,9 +620,9 @@ public class SaltWriter {
 	public static void addDomRelToNonFloatingSToken(IGraph syntaxIGraph, SDocumentGraph docGraph, SStructure sourceSStructure, List<ILink> linksToTokenRegions) throws GrafException {
 		for (ILink link : linksToTokenRegions) {
 			for (IRegion region : link.regions()) {
-				EList<SToken> dominatedSTokens = GrafReader.getSTokensFromIRegions(syntaxIGraph, region, docGraph);
+				List<SToken> dominatedSTokens = GrafReader.getSTokensFromIRegions(syntaxIGraph, region, docGraph);
 				for (SToken dominatedSToken : dominatedSTokens) {
-					docGraph.addSNode(sourceSStructure, dominatedSToken, domRel);
+					docGraph.addNode(sourceSStructure, dominatedSToken, domRel);
 				}
 			}
 		}
@@ -660,23 +644,16 @@ public class SaltWriter {
 	 */
 	public static void addSyntaxToSDocument(IGraph syntaxIGraph, HashMap<String, List<String>> iNodeIdToSNodeIdMap, HashMap<String, SNode> sNodeIdToSNodeMap, SDocument sDocument) throws GrafException {
 
-		SDocumentGraph docGraph = sDocument.getSDocumentGraph();
-		List<SToken> sTokens = Collections.synchronizedList(docGraph.getSTokens());
+		SDocumentGraph docGraph = sDocument.getDocumentGraph();
+		List<SToken> sTokens = Collections.synchronizedList(docGraph.getTokens());
 
 		HashMap<String, SStructure> iNodeIdToSStructureMap = createSyntaxINodeSStructures(syntaxIGraph);
-		System.out.println("DEBUG iNodeIdToSStructureMap:"); // TODO: remove
-																// after
-																// debugging
-		for (String iNodeId : iNodeIdToSStructureMap.keySet()) {
-			SStructure sStructure = iNodeIdToSStructureMap.get(iNodeId);
-			System.out.println("\tINode ID " + iNodeId + " --> SStructure ID: " + sStructure.getId());
-		}
-
+		
 		// FIXME: IGraph.getRoots() is broken, so we got to create/add our own
 		// root for now
-		SStructure rootSStructure = SaltFactory.eINSTANCE.createSStructure();
-		rootSStructure.setSName("root");
-		docGraph.addSNode(rootSStructure);
+		SStructure rootSStructure = SaltFactory.createSStructure();
+		rootSStructure.setName("root");
+		docGraph.addNode(rootSStructure);
 
 		// we'll create dominance relations from the root of the SDocument to
 		// all the roots of the syntactic trees that it will contain

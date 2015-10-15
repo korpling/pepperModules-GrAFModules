@@ -26,6 +26,16 @@ import java.util.Map;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.impl.PepperImporterImpl;
+import org.corpus_tools.pepper.modules.PepperImporter;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SCorpus;
+import org.corpus_tools.salt.common.SCorpusGraph;
+import org.corpus_tools.salt.common.SDocument;
+import org.corpus_tools.salt.core.SNode;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 import org.xces.graf.api.GrafException;
@@ -35,15 +45,6 @@ import org.xces.graf.api.INode;
 import org.xces.graf.api.IRegion;
 import org.xces.graf.impl.DefaultImplementation;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperImporter;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperImporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpus;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SCorpusGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sCorpusStructure.SDocument;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 
 /**
  * @author Arne Neumann
@@ -53,12 +54,14 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SNode;
 @Component(name="GrAFImporterComponent", factory="PepperImporterComponentFactory")
 public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 {
+	public static final String MODULE_NAME="GrAFImporter";
+	
 	public GrAFImporter()
 	{
 		super();
 		//setting name of module
 		setName("GrAFImporter");
-		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-GrAFModules"));
 		setDesc("This importer transforms data in the GrAF format to a Salt model. ");
 
@@ -154,15 +157,15 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 			docIdDocHeaderMap = createDocIdDocHeaderMap(docHeaderPaths);
 			
 			// generate a corpus (incl. subcorpora) and add documents to them.
-			// right now these documents only contain an SName string
-			SCorpus corpus = SaltFactory.eINSTANCE.createSCorpus();
-			corpus.setSName("MASC_labels_not_namespaces");
-			corpusGraph.addSNode(corpus); // add corpus to corpus graph
+			// right now these documents only contain an Name string
+			SCorpus corpus = SaltFactory.createSCorpus();
+			corpus.setName("MASC_labels_not_namespaces");
+			corpusGraph.addNode(corpus); // add corpus to corpus graph
 			
 			for (String docId: docIds) {
-				SDocument sDoc = SaltFactory.eINSTANCE.createSDocument();
-				sDoc.setSName(docId);
-				corpusGraph.addSDocument(corpus, sDoc);
+				SDocument sDoc = SaltFactory.createSDocument();
+				sDoc.setName(docId);
+				corpusGraph.addDocument(corpus, sDoc);
 			}		
 			
 			rscHeader = new GrafResourceHeader(corpusPath);
@@ -204,26 +207,26 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 	 * 	This method is called by method start() of superclass PepperImporter, if the method was not overriden
 	 * 	by the current class. If this is not the case, this method will be called for every document which has
 	 * 	to be processed.
-	 * 	@param sElementId - the id value for the current document or corpus to process,
-	 *  	e.g. SElementIdImpl@76fe15f1 (namespace: graph, name: id, value: salt:/MASC_labels_not_namespaces/MASC1-00030)
+	 * 	@param Identifier - the id value for the current document or corpus to process,
+	 *  	e.g. IdentifierImpl@76fe15f1 (namespace: graph, name: id, value: salt:/MASC_labels_not_namespaces/MASC1-00030)
 	 */
 	@Override
-	public void start(SElementId sElementId) throws PepperModuleException 
+	public void start(Identifier Identifier) throws PepperModuleException 
 	{
-		if (	(sElementId!= null) &&
-				(sElementId.getSIdentifiableElement()!= null) &&
-				((sElementId.getSIdentifiableElement() instanceof SDocument) ||
-				((sElementId.getSIdentifiableElement() instanceof SCorpus))))
-		{//only if given sElementId belongs to an object of type SDocument or SCorpus	
-			if (sElementId.getSIdentifiableElement() instanceof SDocument)
+		if (	(Identifier!= null) &&
+				(Identifier.getIdentifiableElement()!= null) &&
+				((Identifier.getIdentifiableElement() instanceof SDocument) ||
+				((Identifier.getIdentifiableElement() instanceof SCorpus))))
+		{//only if given Identifier belongs to an object of type SDocument or SCorpus	
+			if (Identifier.getIdentifiableElement() instanceof SDocument)
 			{
 				
 				try {
-					SDocument sDocument= (SDocument)sElementId.getSIdentifiableElement();
+					SDocument sDocument= (SDocument)Identifier.getIdentifiableElement();
 					// add new document graph to SDocument
-					sDocument.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
+					sDocument.setDocumentGraph(SaltFactory.createSDocumentGraph());
 
-					String sDocName = sDocument.getSName();
+					String sDocName = sDocument.getName();
 					System.out.println("filling SDocument "+sDocName+" ...");
 					String docHeaderPath = docIdDocHeaderMap.get(sDocName);
 
@@ -237,38 +240,18 @@ public class GrAFImporter extends PepperImporterImpl implements PepperImporter
 					HashMap<String, SNode> sNodeIdToSNodeMap = SaltWriter.addAnnotationsToSDocument(fixedIGraph, 
 																	iNodeIdToSNodeIdsMap, 
 																	sDocument);
-					
-//					GrafGraphInfo.printSyntaxTreeRoots(fixedIGraph);
 					SaltWriter.addSyntaxToSDocument(fixedIGraph,
 											iNodeIdToSNodeIdsMap, 
 											sNodeIdToSNodeMap, 
 											sDocument);
-										
-
-				
-					// TODO: test if all SNodes cover some primary text
-					// cannot map SStructuredNode object 'salt:/MASC_labels_
-					// not_namespaces/MASC1-00030/MASC1-00030_graph#ptb-n00229' to ra-node, 
-					// because it does not overlap a text.
-//					SDocumentGraph sDocumentGraph = sDocument.getSDocumentGraph();
-//					// convert EList to List and sort it
-//					List<SNode> sNodes = new ArrayList<SNode>();
-//					for (SNode node : sDocumentGraph.getSNodes()) { sNodes.add(node); }
-//					Collections.sort(sNodes, new SaltElementSortByID());
-//									
-//					for (SNode sNode : sNodes) {
-//						String nodePrimaryText = SaltReader.getPrimaryTextSequence(sNode, sDocumentGraph);
-//						System.out.println("SNode ID: "+sNode.getId()+" covers this primary text sequence:");
-//						System.out.println("\t"+nodePrimaryText);
-//					}
 				}
 				
 				
 				catch (Exception e) {
-					throw new PepperModuleException(this, "Cannot import SDocument '"+sElementId+"' ",e);
+					throw new PepperModuleException(this, "Cannot import SDocument '"+Identifier+"' ",e);
 				}
 			}
-		}//only if given sElementId belongs to an object of type SDocument or SCorpus
+		}//only if given Identifier belongs to an object of type SDocument or SCorpus
 	}
 
 	/** find floating nodes in an IGraph and link them to a fake region

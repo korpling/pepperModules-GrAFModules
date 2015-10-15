@@ -30,7 +30,14 @@ import java.util.List;
 
 import javax.xml.xpath.XPathExpressionException;
 
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.salt.SaltFactory;
+import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.STextualDS;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.util.DataSourceSequence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xces.graf.api.GrafException;
 import org.xces.graf.api.IEdge;
 import org.xces.graf.api.IGraph;
@@ -43,13 +50,6 @@ import org.xces.graf.io.dom.ResourceHeader;
 import org.xces.graf.util.GraphUtils;
 import org.xml.sax.SAXException;
 
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.salt.SaltFactory;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDataSourceSequence;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SDocumentGraph;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STextualDS;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-
 /**
  * These annotation types ("f.ids") are used in the MASC 3.0.0 corpus:
  * "f.logical", "f.s", "f.fn", "f.fntok", "f.nc", "f.penn", "f.ptb", "f.ptbtok",
@@ -58,7 +58,9 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
  * @author Arne Neumann
  */
 public class GrafReader {
-
+	protected static final Logger logger= LoggerFactory.getLogger(GrAFImporter.MODULE_NAME);
+	
+	
 	/** returns an IGraph that includes ALL annotations made to a document. */
 	public static IGraph getAnnoGraph(ResourceHeader rscHeader, String docHeaderPath) throws GrafException, SAXException, IOException {
 
@@ -390,27 +392,27 @@ public class GrafReader {
 	 * returns the STokens that represent the primary text segments that an
 	 * IRegion links to.
 	 */
-	public static EList<SToken> getSTokensFromIRegions(IGraph iGraph, IRegion region, SDocumentGraph docGraph) throws GrafException {
-		STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
-		SDataSourceSequence sDataSourceSequence = SaltFactory.eINSTANCE.createSDataSourceSequence();
+	public static List<SToken> getSTokensFromIRegions(IGraph iGraph, IRegion region, SDocumentGraph docGraph) throws GrafException {
+		STextualDS sTextualDS = docGraph.getTextualDSs().get(0);
+		DataSourceSequence<Integer> sDataSourceSequence = new DataSourceSequence<Integer>();
 		int[] regionOffsets = getRegionOffsets(region);
-		sDataSourceSequence.setSStart(regionOffsets[0]);
-		sDataSourceSequence.setSEnd(regionOffsets[1]);
-		sDataSourceSequence.setSSequentialDS(sTextualDS);
-		return docGraph.getSTokensBySequence(sDataSourceSequence);
+		sDataSourceSequence.setStart(regionOffsets[0]);
+		sDataSourceSequence.setEnd(regionOffsets[1]);
+		sDataSourceSequence.setDataSource(sTextualDS);
+		return docGraph.getTokensBySequence(sDataSourceSequence);
 	}
 
 	/**
 	 * returns the STokens that represent the primary text within the given
 	 * offsets.
 	 */
-	public static EList<SToken> getSTokensFromOffsets(IGraph iGraph, int onset, int offset, SDocumentGraph docGraph) throws GrafException {
-		STextualDS sTextualDS = docGraph.getSTextualDSs().get(0);
-		SDataSourceSequence sDataSourceSequence = SaltFactory.eINSTANCE.createSDataSourceSequence();
-		sDataSourceSequence.setSStart(onset);
-		sDataSourceSequence.setSEnd(offset);
-		sDataSourceSequence.setSSequentialDS(sTextualDS);
-		return docGraph.getSTokensBySequence(sDataSourceSequence);
+	public static List<SToken> getSTokensFromOffsets(IGraph iGraph, int onset, int offset, SDocumentGraph docGraph) throws GrafException {
+		STextualDS sTextualDS = docGraph.getTextualDSs().get(0);
+		DataSourceSequence<Integer> sDataSourceSequence = new DataSourceSequence<Integer>();
+		sDataSourceSequence.setStart(onset);
+		sDataSourceSequence.setEnd(offset);
+		sDataSourceSequence.setDataSource(sTextualDS);
+		return docGraph.getTokensBySequence(sDataSourceSequence);
 	}
 
 	/**
@@ -450,7 +452,7 @@ public class GrafReader {
 		}
 
 		if (leafNode.getInEdges().isEmpty()) {
-			System.out.println("DEBUG getRootNodeFromNode: IGraph has a weird floating root node: " + leafNode.getId());
+			logger.debug("IGraph has a weird floating root node: " + leafNode.getId());
 			return leafNode; // a node without ingoing edges is a root node
 		} else {
 			INode firstParentNode = leafNode.getInEdge(0).getFrom();
