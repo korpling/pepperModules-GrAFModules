@@ -57,10 +57,9 @@ public class SaltReader {
 	 * 
 	 */
 	public static String getPrimaryTextSequence(SNode sNode, SDocumentGraph sDocumentGraph) {
-		List<SALT_TYPE> interestingRelations = new ArrayList<SALT_TYPE>();
-		interestingRelations.add(SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		// we'll use the first (and only) SDataSource
-		List<DataSourceSequence> overlappedDSSequences = sDocumentGraph.getOverlappedDataSourceSequence(sNode, interestingRelations);
+		List<DataSourceSequence> overlappedDSSequences = sDocumentGraph.getOverlappedDataSourceSequence(sNode,
+            SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		if (!overlappedDSSequences.isEmpty()) {
 			DataSourceSequence<Integer> firstSequence = overlappedDSSequences.get(0);
 			String primaryText = firstSequence.getDataSource().getData().toString();
@@ -91,10 +90,8 @@ public class SaltReader {
 
 	/** returns the string onset and offset of an SToken */
 	public static int[] getSTokenOffsets(SToken token) {
-		List<SALT_TYPE> interestingRelations = new ArrayList<SALT_TYPE>();
-		interestingRelations.add(SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		SDocumentGraph docGraph = token.getGraph();
-		DataSourceSequence<Integer> sequence = docGraph.getOverlappedDataSourceSequence(token, interestingRelations).get(0);
+		DataSourceSequence<Integer> sequence = docGraph.getOverlappedDataSourceSequence(token, SALT_TYPE.STEXT_OVERLAPPING_RELATION).get(0);
 		return new int[] { sequence.getStart(), sequence.getEnd() };
 	}
 
@@ -108,10 +105,8 @@ public class SaltReader {
 	 * returns the primary text offsets of an SSpan FIXME: untested
 	 */
 	public static Pair<Integer, Integer> getSSpanOffset(SSpan span) {
-		List<SALT_TYPE> interestingRelations = new ArrayList<>();
-		interestingRelations.add(SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		SDocumentGraph docGraph = span.getGraph();
-		DataSourceSequence<Integer> sequence = docGraph.getOverlappedDataSourceSequence(span, interestingRelations).get(0);
+		DataSourceSequence<Integer> sequence = docGraph.getOverlappedDataSourceSequence(span, SALT_TYPE.STEXT_OVERLAPPING_RELATION).get(0);
 		return Pair.of(sequence.getStart(), sequence.getEnd());
 	}
 
