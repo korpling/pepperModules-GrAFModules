@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.corpus-tools</groupId>
 		<artifactId>pepper-parentModule</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.0</version>
 	</parent>
 	<artifactId>pepperModules-GrAFModules</artifactId>
 	<name>${project.groupId}.${project.artifactId}</name>
@@ -22,11 +22,6 @@
 	</ciManagement>
 	<inceptionYear>2012</inceptionYear>
 	<repositories>
-		<repository>
-			<id>korpling</id>
-			<name>korpling maven repo</name>
-			<url>http://korpling.german.hu-berlin.de/maven2</url>
-		</repository>
 		<repository>
 			<id>anc-releases</id>
 			<url>http://www.anc.org:8080/nexus/content/repositories/releases/</url>
@@ -54,14 +49,6 @@
 		<developerConnection>scm:git:git@github.com:korpling/pepperModules-GrAFModules.git</developerConnection>
 		<url>https://github.com/korpling/pepperModules-GrAFModules</url>
 	</scm>
-	<distributionManagement>
-		<repository>
-			<id>korpling</id>
-			<name>korpling maven repo</name>
-			<url>file:///srv/www/maven2/</url>
-
-		</repository>
-	</distributionManagement>
 	<properties>
 		<graf.version>1.2.2</graf.version>
 	</properties>
@@ -97,19 +84,6 @@
 	</dependencies>
 	<build>
 		<plugins>
-
-			<plugin>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>${maven-release-plugin.version}</version>
-				<configuration>
-					<tagBase>
-						https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/GrAFModules/tags/
-					</tagBase>
-					<releaseProfiles>release</releaseProfiles>
-					<goals>package assembly:single deploy</goals>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
@@ -149,7 +123,6 @@
 					</instructions>
 				</configuration>
 			</plugin>
-
 		</plugins>
 	</build>
 </project>
