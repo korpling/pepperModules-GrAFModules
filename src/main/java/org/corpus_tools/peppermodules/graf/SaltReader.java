@@ -58,12 +58,12 @@ public class SaltReader {
 	 */
 	public static String getPrimaryTextSequence(SNode sNode, SDocumentGraph sDocumentGraph) {
 		// we'll use the first (and only) SDataSource
-		List<DataSourceSequence> overlappedDSSequences = sDocumentGraph.getOverlappedDataSourceSequence(sNode,
+		List<? extends DataSourceSequence<? extends Number>> overlappedDSSequences = sDocumentGraph.getOverlappedDataSourceSequence(sNode,
             SALT_TYPE.STEXT_OVERLAPPING_RELATION);
 		if (!overlappedDSSequences.isEmpty()) {
-			DataSourceSequence<Integer> firstSequence = overlappedDSSequences.get(0);
+			DataSourceSequence<? extends Number> firstSequence = overlappedDSSequences.get(0);
 			String primaryText = firstSequence.getDataSource().getData().toString();
-			return primaryText.substring(firstSequence.getStart(), firstSequence.getEnd());
+			return primaryText.substring(firstSequence.getStart().intValue(), firstSequence.getEnd().intValue());
 		} else {
 			return null;
 		}
@@ -91,8 +91,8 @@ public class SaltReader {
 	/** returns the string onset and offset of an SToken */
 	public static int[] getSTokenOffsets(SToken token) {
 		SDocumentGraph docGraph = token.getGraph();
-		DataSourceSequence<Integer> sequence = docGraph.getOverlappedDataSourceSequence(token, SALT_TYPE.STEXT_OVERLAPPING_RELATION).get(0);
-		return new int[] { sequence.getStart(), sequence.getEnd() };
+		DataSourceSequence<? extends Number> sequence = docGraph.getOverlappedDataSourceSequence(token, SALT_TYPE.STEXT_OVERLAPPING_RELATION).get(0);
+		return new int[] { sequence.getStart().intValue(), sequence.getEnd().intValue() };
 	}
 
 	/** returns the string onset and offset of an STextualRelation */
@@ -106,8 +106,8 @@ public class SaltReader {
 	 */
 	public static Pair<Integer, Integer> getSSpanOffset(SSpan span) {
 		SDocumentGraph docGraph = span.getGraph();
-		DataSourceSequence<Integer> sequence = docGraph.getOverlappedDataSourceSequence(span, SALT_TYPE.STEXT_OVERLAPPING_RELATION).get(0);
-		return Pair.of(sequence.getStart(), sequence.getEnd());
+		DataSourceSequence<? extends Number> sequence = docGraph.getOverlappedDataSourceSequence(span, SALT_TYPE.STEXT_OVERLAPPING_RELATION).get(0);
+		return Pair.of(sequence.getStart().intValue(), sequence.getEnd().intValue());
 	}
 
 	/** returns a list of STokens that are part of an SSpan. */
