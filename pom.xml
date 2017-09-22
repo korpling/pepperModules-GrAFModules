@@ -114,13 +114,12 @@
 						<Bundle-RequiredExecutionEnvironment>JavaSE-${java.version}</Bundle-RequiredExecutionEnvironment>
 						<Service-Component>${allServiceComponents}</Service-Component>
 						<Bundle-ClassPath>.,{maven-dependencies},
-							lib/commons-lang3-3.1.jar, lib/graf-api-${graf.version}.jar,
+							lib/graf-api-${graf.version}.jar,
 							lib/graf-i18n-${graf.version}.jar,
 							lib/graf-impl-${graf.version}.jar,
 							lib/graf-io-${graf.version}.jar,
 							lib/graf-util-${graf.version}.jar</Bundle-ClassPath>
 						<Include-Resource>{maven-resources}, LICENSE, NOTICE,
-							lib/commons-lang3-3.1.jar=lib/commons-lang3-3.1.jar,
 							lib/graf-api-${graf.version}.jar=lib/graf-api-${graf.version}.jar,
 							lib/graf-i18n-${graf.version}.jar=lib/graf-i18n-${graf.version}.jar,
 							lib/graf-impl-${graf.version}.jar=lib/graf-impl-${graf.version}.jar,
