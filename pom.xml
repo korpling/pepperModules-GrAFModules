@@ -7,7 +7,7 @@
 	</parent>
 	<artifactId>pepperModules-GrAFModules</artifactId>
 	<name>${project.groupId}.${project.artifactId}</name>
-	<version>2.0.7</version>
+	<version>2.0.8-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<description>This project provides a Pepper importer and an exporter for GrAF data.</description>
 	<url>https://github.com/korpling/pepperModules-GrAFModules</url>
@@ -24,7 +24,7 @@
 		<connection>scm:git:git://github.com/korpling/pepperModules-GrAFModules.git</connection>
 		<developerConnection>scm:git:git@github.com:korpling/pepperModules-GrAFModules.git</developerConnection>
 		<url>https://github.com/korpling/pepperModules-GrAFModules</url>
-	  <tag>pepperModules-GrAFModules-2.0.7</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<properties>
 		<graf.version>1.2.3</graf.version>
